@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{maintain}
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
      "lib/maintain/integer_value.rb",
      "lib/maintain/maintainer.rb",
      "lib/maintain/value.rb",
+     "maintain.gemspec",
      "spec/active_record_spec.rb",
      "spec/aggregates_spec.rb",
      "spec/bitwise_spec.rb",

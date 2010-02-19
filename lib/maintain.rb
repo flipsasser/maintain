@@ -1,10 +1,10 @@
 module Maintain
   # We're not really interested in loading anything into memory if we don't need to,
   # so Maintainer, Value, and the Value subclasses are ignored until they're needed.
-  autoload(:Maintainer, 'lib/maintain/maintainer')
-  autoload(:Value, 'lib/maintain/value')
-  autoload(:BitmaskValue, 'lib/maintain/bitmask_value')
-  autoload(:IntegerValue, 'lib/maintain/integer_value')
+  autoload(:Maintainer, 'maintain/maintainer')
+  autoload(:Value, 'maintain/value')
+  autoload(:BitmaskValue, 'maintain/bitmask_value')
+  autoload(:IntegerValue, 'maintain/integer_value')
 
   # The core class method of Maintain. Basic usage is:
   # 
