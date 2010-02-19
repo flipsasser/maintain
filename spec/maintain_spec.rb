@@ -6,7 +6,7 @@ describe Maintain do
   before :each do
     class MaintainTest
       attr_accessor :existant_attribute
-      include Maintain
+      extend Maintain
     end
   end
 
@@ -29,7 +29,7 @@ describe Maintain do
 
   it "should store a reference to all of the defined states in the class" do
     MaintainTest.maintain :non_existant_attribute
-    MaintainTest.send(:maintainers)[:non_existant_attribute].should be_instance_of(Maintain::State)
+    MaintainTest.send(:maintainers)[:non_existant_attribute].should be_instance_of(Maintain::Maintainer)
   end
 
   it "should define accessors for non-existant attributes" do

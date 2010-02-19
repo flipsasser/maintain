@@ -5,7 +5,7 @@ require 'lib/maintain'
 describe Maintain, "hooks" do
   before :each do
     class MaintainTest
-      include Maintain
+      extend Maintain
     end
   end
 
@@ -35,6 +35,10 @@ describe Maintain, "hooks" do
     maintain = MaintainTest.new
     maintain.should_receive(:new_entered)
     maintain.state = :new
+    maintain.should_receive(:old_entered)
+    maintain.state = :old
+    maintain.should_not_receive(:old_entered)
+    maintain.state = :old
   end
 
 end

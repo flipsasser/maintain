@@ -6,7 +6,7 @@ describe Maintain do
   before :each do
     class MaintainTest
       attr_accessor :existant_attribute
-      include Maintain
+      extend Maintain
     end
   end
 
@@ -70,7 +70,7 @@ describe Maintain do
               def new?
                 :i_existed_before_you_came_along
               end
-              include Maintain
+              extend Maintain
               maintains :state, :default => :new do
                 state :new
                 state :overdue

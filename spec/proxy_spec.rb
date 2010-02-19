@@ -6,7 +6,7 @@ describe Maintain do
   before :each do
     class MaintainTest
       attr_accessor :existant_attribute
-      include Maintain
+      extend Maintain
     end
 
   end

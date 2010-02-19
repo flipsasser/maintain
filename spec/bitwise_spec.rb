@@ -5,7 +5,7 @@ require 'lib/maintain'
 describe Maintain do
   before :each do
     class MaintainTest
-      include Maintain
+      extend Maintain
     end
   end
 

@@ -6,7 +6,7 @@ describe Maintain do
   before :each do
     class MaintainTest
       attr_accessor :existant_attribute
-      include Maintain
+      extend Maintain
     end
   end
 
@@ -34,7 +34,7 @@ describe Maintain do
       MaintainTest.new.existant_attribute.should == 1
     end
 
-    it "should provide accessor methods on the Maintain::State class for state values" do
+    it "should provide accessor methods on the Maintain::Maintainer class for state values" do
       maintainer = MaintainTest.maintain :permissions, :bitmask => true do
         state :edit, 1
         state :delete, 2

@@ -1,8 +1,6 @@
 # Some specs to check against ActiveRecord conflicts. Rails tends to blow
 # shit up when you build it outside of Rails. We'll see how this goes...
 
-require 'lib/maintain'
-
 proceed = false
 begin
   require 'rubygems'
@@ -13,18 +11,17 @@ rescue LoadError
 end
 
 if proceed
-  ActiveRecord::Base.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :pool => 5, :timeout => 5000})
-  class ActiveMaintainTest < ActiveRecord::Base; include Maintain; end
-
-  describe ActiveRecord::Base do
-    after :all do
-      Object.class_eval do
-        remove_const(:ActiveRecord)
-      end
+  # Use load to have it evaluate the ActiveRecord::Base extension logic again, in the event
+  # that we've already done that with a previous test.
+  load 'lib/maintain.rb'
+  describe Maintain, "ActiveRecord::Base" do
+    it "should automatically be extended" do
+      ActiveRecord::Base.should respond_to(:maintain)
     end
-
-    describe "with a string state column" do
+    describe "accessors" do
       before :each do
+        ActiveRecord::Base.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :pool => 5, :timeout => 5000})
+        class ActiveMaintainTest < ActiveRecord::Base; end
         silence_stream(STDOUT) do
           ActiveRecord::Schema.define do
             create_table :active_maintain_tests, :force => true do |t|
@@ -36,6 +33,7 @@ if proceed
         ActiveMaintainTest.maintain :status do
           state :new, :default => true
           state :old
+          aggregate :everything, :as => [:new, :old]
         end
       end
 
@@ -51,6 +49,18 @@ if proceed
           active_maintain_test.save!
         }.should_not raise_error
         ActiveMaintainTest.first.status.should == 'old'
+      end
+    end
+
+    describe "named_scopes" do
+      it "should create named_scopes for all states" do
+        ActiveMaintainTest.should respond_to(:old)
+        ActiveMaintainTest.old.should be_instance_of(Array)
+      end
+
+      it "should create named_scopes for all aggregates" do
+        ActiveMaintainTest.should respond_to(:everything)
+        ActiveMaintainTest.everything.should be_instance_of(Array)
       end
     end
   end
