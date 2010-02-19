@@ -155,8 +155,8 @@ Of course, maybe that's not your style. Why not try this?
 	    state :active
 	    state :inactive
 
-	    enter :active, :activated
-	    exit :inactive do
+	    on :enter, :active, :activated
+	    on :exit, :inactive do
 	      bar.baz!
 	    end
 	  end
