@@ -3,7 +3,7 @@ Maintain
 
 **Maintain** is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
 and hooks that really work. It can be used for multiple attributes and will always do its best to
-stay out of your way and let your code instruct the machine.
+stay out of your way and let your code drive the machine, and not vice versa.
 
 Installation
 -
@@ -20,7 +20,7 @@ Basic Usage
 state on an attribute:
 
 	class Foo
-	  include Maintain
+	  extend Maintain
 	  maintains :state do
 	    state :new, :default => true
 	    state :old
@@ -52,7 +52,7 @@ or you can just let it infer what it wants. From our example above:
 You could also do:
 
 	class Foo
-	  include Maintain
+	  extend Maintain
 	  maintains :state do
 	    state :new, 12, :default => true
 	    state :old, 5
@@ -68,7 +68,7 @@ Sometimes you need to store a simple combination of values. Sure, you could add 
 relational database - or you could implement a single bitmask column:
 
 	class Foo
-	  include Maintain
+	  extend Maintain
 	  maintains :state, :bitmask => true do
 	    # NOTE: Maintain will try to infer a bitmask value if you do not provid  an integer here,
 	    # but if you don't -- and you re-order your state calls later -- all stored bitmasks will
@@ -89,7 +89,7 @@ relational database - or you could implement a single bitmask column:
 	foo.blue? 						#=> false
 	foo.blue!
 	foo.blue? 						#=> true
-
+	
 	# foo.state will boil happily down to an integer when you store it.
 
 Aggregates
@@ -99,7 +99,7 @@ What about when a group of states is needed? Yeah, you could write `foo.bar? || 
 But why not just add the following?
 
 	class Foo
-	  include Maintain
+	  extend Maintain
 	  maintains :state do
 	    state :new
 	    state :old
@@ -121,7 +121,7 @@ Named Scopes
 subclasses for those states! Check it:
 
 	class Foo < ActiveRecord::Base
-	  include Maintain
+	  extend Maintain
 	  maintains :state do
 	    state :active
 	    state :inactive
@@ -137,7 +137,6 @@ Hooks
 **Maintain** can hook into state entry and exit, and provides a number of mechanisms for doing so:
 
 	class Foo < ActiveRecord::Base
-	  include Maintain
 	  maintains :state do
 	    state :active, :enter => :activated
 	    state :inactive, :exit => lambda { self.bar.baz! }
@@ -150,8 +149,8 @@ Hooks
 
 Of course, maybe that's not your style. Why not try this?
 
-	class Foo < ActiveRecord::Base
-	  include Maintain
+	class Foo
+	  extend Maintain
 	  maintains :state do
 	    state :active
 	    state :inactive

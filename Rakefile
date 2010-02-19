@@ -23,18 +23,16 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "oria"
-    gemspec.summary = "A Ruby-based, in-memory KVS with one half of the peristence you want"
+    gemspec.name = "maintain"
+    gemspec.summary = "A Ruby state machine that lets your code do the driving"
     gemspec.description = %{
-      Oria (oh-rye-uh) is an in-memory, Ruby-based Key-Value store. It's designed to handle moderate amounts of data quickly
-      and easily without causing deployment issues or server headaches. It uses EventMachine to provide a networked interface
-      to a semi-persistent KVS and asynchronously writes the in-memory data to YAML files.
+      Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
+      and hooks that really work. It can be used for multiple attributes and will always do its best to
+      stay out of your way and let your code drive the machine, and not vice versa.
     }
     gemspec.email = "flip@x451.com"
-    gemspec.homepage = "http://github.com/flipsasser/oria"
+    gemspec.homepage = "http://github.com/flipsasser/maintain"
     gemspec.authors = ["Flip Sasser"]
-    gemspec.add_dependency('eventmachine', '>= 0.12.10')
-    gemspec.add_dependency('json', '>= 1.2.0')
   end
 rescue LoadError
 end
