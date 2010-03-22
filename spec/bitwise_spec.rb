@@ -1,4 +1,4 @@
-# Basic class method specs
+# Tests for the bitwise / bitmask functionality.
 
 require 'lib/maintain'
 

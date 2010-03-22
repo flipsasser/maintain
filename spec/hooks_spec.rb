@@ -1,4 +1,4 @@
-# Comparing state values
+# Hooks on state entrance / exit. Needs more attention.
 
 require 'lib/maintain'
 

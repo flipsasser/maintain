@@ -1,4 +1,4 @@
-# Configuration point number one: setting and configuring states
+# Specs for aggregation of state
 
 require 'lib/maintain'
 

@@ -1,4 +1,4 @@
-# Comparing state values
+# Specs for assigning states
 
 require 'lib/maintain'
 

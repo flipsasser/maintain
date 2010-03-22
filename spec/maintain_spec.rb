@@ -12,7 +12,7 @@ describe Maintain do
 
   # Basic overview / class methods
   it "should extend things that include it" do
-    MaintainTest.should respond_to(:maintains)
+    MaintainTest.should respond_to(:maintain)
   end
 
   it "should alias the maintain method as `maintains`" do

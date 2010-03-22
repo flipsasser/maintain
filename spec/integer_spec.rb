@@ -1,4 +1,4 @@
-# Basic class method specs
+# Tests on integer-specific functionality
 
 require 'lib/maintain'
 
