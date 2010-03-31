@@ -96,7 +96,7 @@ module Maintain
         # If'n it doesn't already exist AND this maintained attribute has a default value (and
         # bitmasks must have at least a 0 value), we'll instantiate a Maintainer::State and return
         # it.
-        if self.class.maintainers[#{attribute.to_sym.inspect}].default? || self.class.maintainers[#{attribute.to_sym.inspect}].bitmask?
+        if self.class.maintainers[#{attribute.to_sym.inspect}].default? || self.class.maintainers[#{attribute.to_sym.inspect}].bitmask?#{" || attributes['#{attribute}']" if active_record}
           @#{attribute} = self.class.maintainers[#{attribute.to_sym.inspect}].value#{"(read_attribute(:#{attribute}))" if active_record}
         end
       end
@@ -106,11 +106,25 @@ module Maintain
     # and we'll also modify it instead of replacing it outright, so subclasses or mixins can extend functionality
     # without replacing it.
     maintainers[attribute.to_sym] = maintainer
+    # 
+    # unless respond_to?(attribute)
+    #   class_eval <<-EOC
+    #     def #{attribute}
+    #       maintainers[#{attribute.to_sym.inspect}]
+    #     end
+    #   EOC
+    # end
   end
   alias :maintains :maintain
 
   def maintainers #:nodoc:
     @maintainers ||= {}
+  end
+
+  if File.file?(version_path = File.join(File.dirname(__FILE__), '..', 'VERSION'))
+    VERSION = File.read(version_path).strip
+  else
+    VERSION = '0.0.1'
   end
 end
 
