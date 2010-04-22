@@ -20,6 +20,10 @@ module Maintain
       compare_value == compare_value_for(value)
     end
 
+    def ===(value)
+      compare_value == compare_value_for(value) || super
+    end
+
     def class
       value.class
     end
