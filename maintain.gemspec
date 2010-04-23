@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{maintain}
-  s.version = "0.1.1"
+  s.version = "0.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
-  s.date = %q{2010-02-19}
+  s.date = %q{2010-04-23}
   s.description = %q{
       Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
       and hooks that really work. It can be used for multiple attributes and will always do its best to
@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
     "README.markdown"
   ]
   s.files = [
-    ".gitignore",
      "README.markdown",
      "Rakefile",
      "VERSION",
@@ -29,7 +28,6 @@ Gem::Specification.new do |s|
      "lib/maintain/integer_value.rb",
      "lib/maintain/maintainer.rb",
      "lib/maintain/value.rb",
-     "maintain.gemspec",
      "spec/active_record_spec.rb",
      "spec/aggregates_spec.rb",
      "spec/bitwise_spec.rb",
@@ -45,7 +43,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/flipsasser/maintain}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{A Ruby state machine that lets your code do the driving}
   s.test_files = [
     "spec/active_record_spec.rb",

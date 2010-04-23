@@ -21,7 +21,6 @@ module Maintain
     end
 
     def ===(value)
-      raise "#{compare_value} #{compare_value_for(value)}"
       (compare_value == compare_value_for(value)) || super
     end
 
@@ -92,10 +91,10 @@ module Maintain
     end
 
     def state_name_for(value)
-      if (value.is_a?(String) || value.is_a?(Symbol))
+      if value.to_s =~ /^\d+$/
+        @state.state_name_for(value.to_i)
+      elsif (value.is_a?(String) || value.is_a?(Symbol))
         @state.states.has_key?(value.to_sym) ? value.to_sym : nil
-      else
-        @state.state_name_for(value)
       end
     end
 
