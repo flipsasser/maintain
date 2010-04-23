@@ -128,6 +128,32 @@ describe Maintain do
       end
     end
 
+
+    describe "identity comparison" do
+      before :each do
+        MaintainTest.maintain :state, :default => :new do
+          state :new, 1
+          state :overdue, 2
+          state :closed, 3
+        end
+        @maintainer = MaintainTest.new
+      end
+
+      it "should work with case statements" do
+        result = case @maintainer.state
+        when :overdue
+          nil
+        when :closed
+          nil
+        when :new
+          "foo"
+        else
+          nil
+        end
+        result.should == "foo"
+      end
+    end
+
     describe "integer states" do
       before :each do
         MaintainTest.maintain :state, :default => :new do

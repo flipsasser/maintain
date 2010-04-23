@@ -28,6 +28,7 @@ describe Maintain do
         @maintainer.state.should == :new
         @maintainer.state = 0
         @maintainer.state.should == :new
+        @maintainer.state.name.should == "new"
         @maintainer.state = 'nada'
         @maintainer.state.should be_nil
       end

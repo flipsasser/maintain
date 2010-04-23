@@ -21,7 +21,8 @@ module Maintain
     end
 
     def ===(value)
-      compare_value == compare_value_for(value) || super
+      raise "#{compare_value} #{compare_value_for(value)}"
+      (compare_value == compare_value_for(value)) || super
     end
 
     def class
@@ -35,6 +36,10 @@ module Maintain
 
     def inspect
       value.inspect
+    end
+
+    def name
+      @value.to_s
     end
 
     def nil?
