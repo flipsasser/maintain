@@ -4,7 +4,7 @@
 proceed = false
 begin
   require 'rubygems'
-  gem 'activerecord', '2.3.5'
+  gem 'activerecord', '3.0.0.beta3'
   require 'active_record'
   proceed = true
 rescue Gem::LoadError, LoadError
