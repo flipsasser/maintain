@@ -4,9 +4,10 @@
 proceed = false
 begin
   require 'rubygems'
+  gem 'activerecord', '2.3.5'
   require 'active_record'
   proceed = true
-rescue LoadError
+rescue Gem::LoadError, LoadError
   puts 'Not testing ActiveRecord (unavailable)'
 end
 
@@ -55,12 +56,12 @@ if proceed
     describe "named_scopes" do
       it "should create named_scopes for all states" do
         ActiveMaintainTest.should respond_to(:old)
-        ActiveMaintainTest.old.should be_instance_of(Array)
+        ActiveMaintainTest.old.should respond_to(:each)
       end
 
       it "should create named_scopes for all aggregates" do
         ActiveMaintainTest.should respond_to(:everything)
-        ActiveMaintainTest.everything.should be_instance_of(Array)
+        ActiveMaintainTest.everything.should respond_to(:each)
       end
     end
   end

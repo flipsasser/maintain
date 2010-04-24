@@ -20,7 +20,12 @@ module Maintain
       end
       # Now define the state
       if @active_record && method_free?(name, true)
-        maintainee.named_scope name, :conditions => {@attribute => options}
+        conditions = {:conditions => {@attribute => options.map{|value| states[value]}}}
+        if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::STRING >= "3"
+          maintainee.scope name, conditions
+        else
+          maintainee.named_scope name, conditions
+        end
       end
     end
 
@@ -105,8 +110,12 @@ module Maintain
       states[name] = {:compare_value => !@bitmask && value.is_a?(Integer) ? value : @increment, :value => value}
       @increment += 1
       if @active_record && !maintainee.respond_to?(name)
-        conditions = {}
-        maintainee.named_scope name, :conditions => {@attribute => value.is_a?(Symbol) ? value.to_s : value}
+        conditions = {:conditions => {@attribute => value.is_a?(Symbol) ? value.to_s : value}}
+        if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::STRING >= "3"
+          maintainee.scope name, conditions
+        else
+          maintainee.named_scope name, conditions
+        end
       end
 
       # Now we're going to add proxies to test for state. These methods only get added if a

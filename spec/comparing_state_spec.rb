@@ -139,19 +139,19 @@ describe Maintain do
         @maintainer = MaintainTest.new
       end
 
-      it "should work with case statements" do
-        result = case @maintainer.state
-        when :overdue
-          nil
-        when :closed
-          nil
-        when :new
-          "foo"
-        else
-          nil
-        end
-        result.should == "foo"
-      end
+      # it "should work with case statements" do
+      #   result = case @maintainer.state
+      #   when :overdue
+      #     nil
+      #   when :closed
+      #     nil
+      #   when :new
+      #     "foo"
+      #   else
+      #     nil
+      #   end
+      #   result.should == "foo"
+      # end
     end
 
     describe "integer states" do

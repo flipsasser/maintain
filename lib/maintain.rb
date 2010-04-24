@@ -54,23 +54,25 @@ module Maintain
         # If we can find the maintainer on this attribute, we'll use it to set values.
         if maintainer = self.class.maintainers[#{attribute.to_sym.inspect}]
           # First, we instantiate a value on this maintainer if we haven't already
-          @#{attribute} ||= maintainer.value
+          # @#{attribute} ||= maintainer.value#{"(read_attribute(:#{attribute}))" if active_record}
 
           # Then run the exit hook if we're changing the value
-          maintainer.hook(:exit, @#{attribute}.value, self)
+          maintainer.hook(:exit, #{attribute}.value, self)
 
           # Then set the value itself. Maintainer::State will return the value you set,
           # so if we're setting to nil we get rid of the attribute entirely - it's not
           # needed and we want the getter to return nil in that case.
-          unless @#{attribute}.set_value(value)
-            @#{attribute} = nil
-          end#{%{
+          # unless 
+          #{attribute}.set_value(value)
+            # @#{attribute} = nil
+            # Nevermind - all of our test methods rely on that attribute existing, no
+            # matter what (e.g. maintain(:state) { state :one } and calling "one?" will
+            # throw an error if we null out our maintainer)
+          # end#{%{
 
           # If this is ActiveRecord::Base or a subclass of it, we'll make sure calling the
           # setter writes a DB-friendly value.
-          if respond_to?(:write_attribute)
-            write_attribute(:#{attribute}, @#{attribute} ? @#{attribute}.value.to_s : nil)
-          end
+          write_attribute(#{attribute.to_s.inspect}, @#{attribute} ? @#{attribute}.value.to_s : nil)
           } if active_record}
 
           # Last but not least, run the enter hooks for the new value - cause that's how we
@@ -96,9 +98,10 @@ module Maintain
         # If'n it doesn't already exist AND this maintained attribute has a default value (and
         # bitmasks must have at least a 0 value), we'll instantiate a Maintainer::State and return
         # it.
-        if self.class.maintainers[#{attribute.to_sym.inspect}].default? || self.class.maintainers[#{attribute.to_sym.inspect}].bitmask?#{" || attributes['#{attribute}']" if active_record}
+        # if self.class.maintainers[#{attribute.to_sym.inspect}].default? || self.class.maintainers[#{attribute.to_sym.inspect}].bitmask?#{" || attributes['#{attribute}']" if active_record}
+        # Always return a State, no matter what
           @#{attribute} = self.class.maintainers[#{attribute.to_sym.inspect}].value#{"(read_attribute(:#{attribute}))" if active_record}
-        end
+        # end
       end
     EOC
 
