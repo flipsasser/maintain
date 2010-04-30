@@ -1,3 +1,4 @@
+# encoding: UTF-8
 module Maintain
   class Maintainer
     def aggregate(name, options)
@@ -38,7 +39,7 @@ module Maintain
     end
 
     def bitmask?
-      @bitmask
+      !!@bitmask
     end
 
     def default(state)
@@ -50,13 +51,11 @@ module Maintain
     end
 
     def hook(event, state, instance)
-      if state && hooks[state.to_sym] && hooks[state.to_sym][event.to_sym]
-        hooks[state.to_sym][event.to_sym].each do |method|
-          if method.is_a?(Proc)
-            instance.instance_eval(&method)
-          else
-            instance.send(method)
-          end
+      if state && state.to_s.strip != '' && hooks[state.to_sym] && hook_definitions = hooks[state.to_sym][event.to_sym]
+        hook_definitions.each do |hook_definition|
+          next if hook_definition[:if] && !call_method_or_proc_on_instance(hook_definition[:if], instance)
+          next if hook_definition[:unless] && call_method_or_proc_on_instance(hook_definition[:unless], instance)
+          call_method_or_proc_on_instance(hook_definition[:method], instance)
         end
       end
     end
@@ -74,13 +73,25 @@ module Maintain
       @integer = !!value
     end
 
-    def on(event, state, method = nil, &block)
+    def integer?
+      !!@integer
+    end
+
+    def on(*args, &block)
+      options = args.last.is_a?(Hash) ? args.pop : {}
+      event, state = args.shift, args.shift
+      method = args.shift
       if block_given?
         method = block
       end
       hooks[state.to_sym] ||= {}
       hooks[state.to_sym][event.to_sym] ||= []
-      hooks[state.to_sym][event.to_sym].push(method) unless hooks[state.to_sym][event.to_sym].include?(method)
+      method_hash = {:method => method}.merge(options)
+      if old_definition = hooks[state.to_sym][event.to_sym].find{|hook| hook[:method] == method}
+        old_definition.merge!(method_hash)
+      else
+        hooks[state.to_sym][event.to_sym].push(method_hash)
+      end
     end
 
     def state_name_for(value)
@@ -98,7 +109,7 @@ module Maintain
         default(name)
       end
       @increment ||= 0
-      if @bitmask
+      if bitmask?
         unless value.is_a?(Integer)
           value = @increment
         end
@@ -107,7 +118,7 @@ module Maintain
         integer(true)
       end
       value ||= name
-      states[name] = {:compare_value => !@bitmask && value.is_a?(Integer) ? value : @increment, :value => value}
+      states[name] = {:compare_value => !bitmask? && value.is_a?(Integer) ? value : @increment, :value => value}
       @increment += 1
       if @active_record && !maintainee.respond_to?(name)
         conditions = {:conditions => {@attribute => value.is_a?(Symbol) ? value.to_s : value}}
@@ -138,9 +149,9 @@ module Maintain
     end
 
     def value(initial = nil)
-      if @bitmask
+      if bitmask?
         BitmaskValue.new(self, initial || @default || 0)
-      elsif @integer
+      elsif integer?
         IntegerValue.new(self, initial || @default)
       else
         Value.new(self, initial || @default)
@@ -164,9 +175,13 @@ module Maintain
         methods = maintainee_class.public_methods + maintainee_class.private_methods + maintainee_class.protected_methods
       else
         respond_to = false
-        methods = maintainee_class.public_instance_methods + maintainee_class.private_instance_methods + maintainee_class.protected_instance_methods
+        methods = maintainee_class.instance_methods
+        # methods = %w(instance_methods public_instance_methods private_instance_methods protected_instance_methods).inject([]) do |methods, method|
+        #   methods + maintainee_class.send(method)
+        # end.uniq
       end
-      !respond_to && !methods.include?(method_name)
+      # Ruby 1.8 returns arrays of strings; ruby 1.9 returns arrays of symbols. "Awesome."
+      !respond_to && !methods.include?(method_name) && !methods.include?(method_name.to_sym)
     end
 
     def method_missing(method, *args)
@@ -174,6 +189,15 @@ module Maintain
         states[method][:value]
       else
         super
+      end
+    end
+
+    private
+    def call_method_or_proc_on_instance(method, instance)
+      if method.is_a?(Proc)
+        instance.instance_eval(&method)
+      else
+        instance.send(method)
       end
     end
   end

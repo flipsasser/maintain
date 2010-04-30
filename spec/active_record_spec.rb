@@ -22,7 +22,7 @@ if proceed
     describe "accessors" do
       before :each do
         ActiveRecord::Base.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :pool => 5, :timeout => 5000})
-        class ActiveMaintainTest < ActiveRecord::Base; end
+        class ::ActiveMaintainTest < ActiveRecord::Base; end
         silence_stream(STDOUT) do
           ActiveRecord::Schema.define do
             create_table :active_maintain_tests, :force => true do |t|

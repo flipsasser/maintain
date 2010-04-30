@@ -1,3 +1,4 @@
+# encoding: UTF-8
 module Maintain
   class Value
     def >(value)

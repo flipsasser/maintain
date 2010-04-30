@@ -4,9 +4,23 @@ require 'lib/maintain'
 
 describe Maintain do
   before :each do
-    class MaintainTest
+    class ::MaintainTest
       attr_accessor :existant_attribute
       extend Maintain
+    end
+
+    class ::MaintainTestTwo
+      def new?
+        :i_existed_before_you_came_along
+      end
+
+      extend Maintain
+
+      maintains :state, :default => :new do
+        state :new
+        state :overdue
+        state :closed
+      end
     end
   end
 
@@ -66,17 +80,6 @@ describe Maintain do
           end
 
           it "should not override pre-existing methods" do
-            class MaintainTestTwo
-              def new?
-                :i_existed_before_you_came_along
-              end
-              extend Maintain
-              maintains :state, :default => :new do
-                state :new
-                state :overdue
-                state :closed
-              end
-            end
             MaintainTestTwo.new.new?.should == :i_existed_before_you_came_along
           end
         end

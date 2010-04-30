@@ -1,3 +1,6 @@
+# encoding: UTF-8
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__))
+
 module Maintain
   # We're not really interested in loading anything into memory if we don't need to,
   # so Maintainer, Value, and the Value subclasses are ignored until they're needed.
@@ -49,59 +52,39 @@ module Maintain
 
     # Define our getters and setters - these are the only methods Maintain will stomp
     # on if you've already defined them. This is because they're how Maintain works.
-    class_eval <<-EOC
+    class_eval <<-EOC, __FILE__
       def #{attribute}=(value)
         # If we can find the maintainer on this attribute, we'll use it to set values.
         if maintainer = self.class.maintainers[#{attribute.to_sym.inspect}]
-          # First, we instantiate a value on this maintainer if we haven't already
-          # @#{attribute} ||= maintainer.value#{"(read_attribute(:#{attribute}))" if active_record}
-
-          # Then run the exit hook if we're changing the value
-          maintainer.hook(:exit, #{attribute}.value, self)
+          # Run the exit hook if we're changing the value
+          maintainer.hook(:exit, #{attribute}.name, self)
 
           # Then set the value itself. Maintainer::State will return the value you set,
           # so if we're setting to nil we get rid of the attribute entirely - it's not
           # needed and we want the getter to return nil in that case.
           # unless 
-          #{attribute}.set_value(value)
-            # @#{attribute} = nil
-            # Nevermind - all of our test methods rely on that attribute existing, no
-            # matter what (e.g. maintain(:state) { state :one } and calling "one?" will
-            # throw an error if we null out our maintainer)
-          # end#{%{
+          #{attribute}.set_value(value)#{%{
 
           # If this is ActiveRecord::Base or a subclass of it, we'll make sure calling the
           # setter writes a DB-friendly value.
-          write_attribute(#{attribute.to_s.inspect}, @#{attribute} ? @#{attribute}.value.to_s : nil)
+          write_attribute(#{attribute.to_s.inspect}, @#{attribute} ? @#{attribute}.value.to_s : @#{attribute})
           } if active_record}
 
           # Last but not least, run the enter hooks for the new value - cause that's how we
           # do.
-          maintainer.hook(:enter, @#{attribute}.value, self) if @#{attribute}
+          maintainer.hook(:enter, #{attribute}.name, self) if @#{attribute}
         else
           # If we can't find a maintainer for this attribute, make our best effort to do what
           # attr_accessor does - set the instance variable.
           @#{attribute} = value#{%{
 
           # ... and on ActiveRecord::Base, we'll also write the attribute like a normal setter.
-          if respond_to?(:write_attribute)
-            write_attribute(:#{attribute}, @#{attribute})
-          end
-          } if active_record}
+          write_attribute(:#{attribute}, @#{attribute})} if active_record}
         end
       end
 
       def #{attribute}
-        # Start by returning an already-instantiated Maintainer::State if it exists
-        return @#{attribute} if @#{attribute}
-
-        # If'n it doesn't already exist AND this maintained attribute has a default value (and
-        # bitmasks must have at least a 0 value), we'll instantiate a Maintainer::State and return
-        # it.
-        # if self.class.maintainers[#{attribute.to_sym.inspect}].default? || self.class.maintainers[#{attribute.to_sym.inspect}].bitmask?#{" || attributes['#{attribute}']" if active_record}
-        # Always return a State, no matter what
-          @#{attribute} = self.class.maintainers[#{attribute.to_sym.inspect}].value#{"(read_attribute(:#{attribute}))" if active_record}
-        # end
+        @#{attribute} ||= self.class.maintainers[#{attribute.to_sym.inspect}].value#{"(read_attribute(:#{attribute}))" if active_record}
       end
     EOC
 

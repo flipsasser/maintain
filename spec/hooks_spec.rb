@@ -4,7 +4,7 @@ require 'lib/maintain'
 
 describe Maintain, "hooks" do
   before :each do
-    class MaintainTest
+    class ::MaintainTest
       extend Maintain
     end
   end
@@ -41,4 +41,22 @@ describe Maintain, "hooks" do
     maintain.state = :old
   end
 
+  describe "guarding" do
+    it "should prevent hooks from running when they return false" do
+      MaintainTest.maintain :state do
+        state :new
+        state :old
+        on :enter, :new, :new_entered, :if => :run_hook?
+      end
+
+      maintain = MaintainTest.new
+      def maintain.run_hook?
+        false
+      end
+      maintain.should_not_receive(:new_entered)
+      maintain.state = :new
+      maintain.state = :old
+      maintain.state = :old
+    end
+  end
 end

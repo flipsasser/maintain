@@ -1,3 +1,4 @@
+# encoding: UTF-8
 module Maintain
   class BitmaskValue < Value
     def set_value(value)
