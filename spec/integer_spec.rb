@@ -19,14 +19,14 @@ describe Maintain do
       @maintainer = MaintainTest.new
     end
 
-    it "should return valid names, too" do
-      @maintainer.kind = :woman
-      @maintainer.kind.name.should == "woman"
-    end
-
     it "should handle numbery strings" do
       @maintainer.kind = "3"
       @maintainer.none?.should be_true
+    end
+
+    it "should return valid names, too" do
+      @maintainer.kind = :woman
+      @maintainer.kind.name.should == "woman"
     end
   end
 end

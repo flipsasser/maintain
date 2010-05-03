@@ -1,6 +1,11 @@
 # encoding: UTF-8
 module Maintain
   class BitmaskValue < Value
+    def initialize(state, value = nil)
+      @state = state
+      @value = value
+    end
+
     def set_value(value)
       @value = bitmask_for(value)
     end

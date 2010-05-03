@@ -31,7 +31,7 @@ module Maintain
 
     def initialize(state, value = nil)
       @state = state
-      @value = value
+      @value = state_name_for(value)
     end
 
     def inspect
@@ -59,7 +59,7 @@ module Maintain
       @value
     end
 
-    private
+    # private
     def compare_value
       @compare_value ||= compare_value_for(@value)
     end

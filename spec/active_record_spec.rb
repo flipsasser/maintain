@@ -51,6 +51,11 @@ if proceed
         }.should_not raise_error
         ActiveMaintainTest.first.status.should == 'old'
       end
+
+      it "should return the correct name when told to" do
+        active_maintain_test = ActiveMaintainTest.create(:status => 'old')
+        ActiveMaintainTest.first.status.name.should == 'old'
+      end
     end
 
     describe "named_scopes" do
