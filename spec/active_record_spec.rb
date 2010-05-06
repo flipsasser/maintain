@@ -34,7 +34,10 @@ if proceed
         ActiveMaintainTest.maintain :status do
           state :new, :default => true
           state :old
-          aggregate :everything, :as => [:new, :old]
+          state :foo
+          state :bar
+          aggregate :everything, :as => [:new, :old, :foo, :bar]
+          aggregate :fakes, :as => [:foo, :bar]
         end
       end
 
@@ -68,6 +71,17 @@ if proceed
         ActiveMaintainTest.should respond_to(:everything)
         ActiveMaintainTest.everything.should respond_to(:each)
       end
+
+      it "should return the correct collections on aggregates" do
+        ActiveMaintainTest.destroy_all
+        one = ActiveMaintainTest.create(:status => :foo)
+        two = ActiveMaintainTest.create(:status => :bar)
+        three = ActiveMaintainTest.create(:status => :new)
+        four = ActiveMaintainTest.create(:status => :old)
+        ActiveMaintainTest.fakes.should == [one, two]
+        ActiveMaintainTest.everything.should == [one, two, three, four]
+      end
+
     end
   end
 end

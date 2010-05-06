@@ -21,7 +21,7 @@ module Maintain
       end
       # Now define the state
       if @active_record && method_free?(name, true)
-        conditions = {:conditions => {@attribute => options.map{|value| states[value]}}}
+        conditions = {:conditions => {@attribute => options.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }}}
         if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::STRING >= "3"
           maintainee.scope name, conditions
         else
