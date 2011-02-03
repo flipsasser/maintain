@@ -5,6 +5,7 @@ module Maintain
   # We're not really interested in loading anything into memory if we don't need to,
   # so Maintainer, Value, and the Value subclasses are ignored until they're needed.
   autoload(:Maintainer, 'maintain/maintainer')
+  autoload(:Backend, 'maintain/backend')
   autoload(:Value, 'maintain/value')
   autoload(:BitmaskValue, 'maintain/bitmask_value')
   autoload(:IntegerValue, 'maintain/integer_value')
@@ -39,13 +40,12 @@ module Maintain
         active_record = superclass == ActiveRecord::Base
         superclass = superclass.superclass
       end
-    else
-      active_record = false
+      options[:back_end] = 'active_record' if active_record
     end
 
     # Create an instance of the maintainer class. It handles all of the state
     # configuration, hooking, aggregation, named_scoping, etc.
-    maintainer = Maintainer.new(self, attribute, active_record, options)
+    maintainer = Maintainer.new(self, attribute, options)
     if block_given?
       maintainer.instance_eval(&block)
     end
@@ -54,37 +54,38 @@ module Maintain
     # on if you've already defined them. This is because they're how Maintain works.
     class_eval <<-EOC, __FILE__
       def #{attribute}=(value)
-        # If we can find the maintainer on this attribute, we'll use it to set values.
-        if maintainer = self.class.maintainers[#{attribute.to_sym.inspect}]
+        # Find the maintainer on this attribute so we can use it to set values.
+        if maintainer = self.class.maintainers[:#{attribute}]
+          changed = #{attribute} != value
           # Run the exit hook if we're changing the value
-          maintainer.hook(:exit, #{attribute}.name, self)
+          maintainer.hook(:exit, #{attribute}.name, self) if changed
 
           # Then set the value itself. Maintainer::State will return the value you set,
           # so if we're setting to nil we get rid of the attribute entirely - it's not
           # needed and we want the getter to return nil in that case.
-          # unless 
-          #{attribute}.set_value(value)#{%{
+          #{attribute}.set_value(value)
 
-          # If this is ActiveRecord::Base or a subclass of it, we'll make sure calling the
-          # setter writes a DB-friendly value.
-          write_attribute(#{attribute.to_s.inspect}, @#{attribute} ? @#{attribute}.value.to_s : @#{attribute})
-          } if active_record}
+          # Allow the back end to write values in an ORM-specific way
+          if maintainer.back_end
+            maintainer.back_end.write(self, :#{attribute}, value)
+          end
 
-          # Last but not least, run the enter hooks for the new value - cause that's how we
-          # do.
-          maintainer.hook(:enter, #{attribute}.name, self) if @#{attribute}
-        else
-          # If we can't find a maintainer for this attribute, make our best effort to do what
-          # attr_accessor does - set the instance variable.
-          @#{attribute} = value#{%{
-
-          # ... and on ActiveRecord::Base, we'll also write the attribute like a normal setter.
-          write_attribute(:#{attribute}, @#{attribute})} if active_record}
+          # Last but not least, run the enter hooks for the new value - cause that's how
+          # we do.
+          maintainer.hook(:enter, #{attribute}.name, self) if changed
         end
       end
 
       def #{attribute}
-        @#{attribute} ||= self.class.maintainers[#{attribute.to_sym.inspect}].value#{"(read_attribute(:#{attribute}))" if active_record}
+        if maintainer = self.class.maintainers[:#{attribute}]
+          if @#{attribute}
+            @#{attribute}
+          else
+            @#{attribute} = maintainer.value(self)
+          end
+        else
+          @#{attribute}
+        end
       end
     EOC
 
@@ -92,14 +93,6 @@ module Maintain
     # and we'll also modify it instead of replacing it outright, so subclasses or mixins can extend functionality
     # without replacing it.
     maintainers[attribute.to_sym] = maintainer
-    # 
-    # unless respond_to?(attribute)
-    #   class_eval <<-EOC
-    #     def #{attribute}
-    #       maintainers[#{attribute.to_sym.inspect}]
-    #     end
-    #   EOC
-    # end
   end
   alias :maintains :maintain
 
@@ -110,7 +103,7 @@ module Maintain
   if File.file?(version_path = File.join(File.dirname(__FILE__), '..', 'VERSION'))
     VERSION = File.read(version_path).strip
   else
-    VERSION = '0.0.1'
+    VERSION = '0.2.0'
   end
 end
 

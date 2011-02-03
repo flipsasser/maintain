@@ -27,7 +27,7 @@ describe Maintain, "hooks" do
       state :new
       state :old
       on :enter, :new, :new_entered
-      on :exit, :old do
+      on :enter, :old do
         self.old_entered
       end
     end
@@ -35,9 +35,8 @@ describe Maintain, "hooks" do
     maintain = MaintainTest.new
     maintain.should_receive(:new_entered)
     maintain.state = :new
-    maintain.should_receive(:old_entered)
+    maintain.should_receive(:old_entered).once
     maintain.state = :old
-    maintain.should_not_receive(:old_entered)
     maintain.state = :old
   end
 

@@ -26,6 +26,7 @@ describe Maintain do
 
     it "should return valid names, too" do
       @maintainer.kind = :woman
+      @maintainer.kind.should == 2
       @maintainer.kind.name.should == "woman"
     end
   end

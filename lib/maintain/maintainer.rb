@@ -1,6 +1,8 @@
 # encoding: UTF-8
 module Maintain
   class Maintainer
+    attr_reader :back_end
+
     def aggregate(name, options)
       if options.is_a?(Hash) && options.has_key?(:as)
         options = options[:as]
@@ -20,13 +22,8 @@ module Maintain
         EOC
       end
       # Now define the state
-      if @active_record && method_free?(name, true)
-        conditions = {:conditions => {@attribute => options.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }}}
-        if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::STRING >= "3"
-          maintainee.scope name, conditions
-        else
-          maintainee.named_scope name, conditions
-        end
+      if back_end && method_free?(name, true)
+        back_end.aggregate(maintainee, name, @attribute, options.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] })
       end
     end
 
@@ -42,8 +39,12 @@ module Maintain
       !!@bitmask
     end
 
-    def default(state)
-      @default = state
+    def default(state = nil)
+      if state
+        @default = state
+      else
+        @default
+      end
     end
 
     def default?
@@ -60,10 +61,12 @@ module Maintain
       end
     end
 
-    def initialize(maintainee, attribute, active_record = false, options = {})
+    def initialize(maintainee, attribute, options = {})
       @maintainee = maintainee.name
       @attribute = attribute.to_sym
-      @active_record = !!active_record
+      if back_end = options.delete(:back_end)
+        @back_end = Maintain::Backend.build(back_end, self)
+      end
       options.each do |key, value|
         self.send(key, value)
       end
@@ -120,13 +123,8 @@ module Maintain
       value ||= name
       states[name] = {:compare_value => !bitmask? && value.is_a?(Integer) ? value : @increment, :value => value}
       @increment += 1
-      if @active_record && !maintainee.respond_to?(name)
-        conditions = {:conditions => {@attribute => value.is_a?(Symbol) ? value.to_s : value}}
-        if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::STRING >= "3"
-          maintainee.scope name, conditions
-        else
-          maintainee.named_scope name, conditions
-        end
+      if !maintainee.respond_to?(name) && back_end
+        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value
       end
 
       # Now we're going to add proxies to test for state. These methods only get added if a
@@ -148,13 +146,14 @@ module Maintain
       @states ||= {}
     end
 
-    def value(initial = nil)
+    def value(instance, initial = nil)
+      initial = (back_end && back_end.read(instance, @attribute)) || initial || @default
       if bitmask?
-        BitmaskValue.new(self, initial || @default || 0)
+        BitmaskValue.new(self, initial || 0)
       elsif integer?
-        IntegerValue.new(self, initial || @default)
+        IntegerValue.new(self, initial)
       else
-        Value.new(self, initial || @default)
+        Value.new(self, initial)
       end
     end
 
@@ -164,7 +163,7 @@ module Maintain
     end
 
     def maintainee
-      @maintainee.split('::').inject(Object) {|mod, const| mod.const_get(const) }
+      @_maintainee ||= @maintainee.split('::').inject(Object) {|mod, const| mod.const_get(const) }
     end
 
     def method_free?(method_name, class_method = false)
