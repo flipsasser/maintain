@@ -3,8 +3,19 @@ require 'maintain/backend/base'
 module Maintain
   module Backend
     class << self
+      def add(name, owner)
+        classes[name.to_sym] = owner
+        modules = owner.split('::')
+        if Object.const_defined?(modules.first) && owner = Object.const_get(modules.shift)
+          while modules.length > 0
+            owner = owner.const_get(modules.shift)
+          end
+          owner.extend Maintain
+        end
+      end
+
       def build(back_end, maintainer)
-        back_end = back_end.split('_').map(&:capitalize).join('')
+        back_end = back_end.to_s.split('_').map(&:capitalize).join('')
         if constants.include? back_end.to_s
           const_get(back_end.to_sym).new
         else
@@ -14,6 +25,10 @@ module Maintain
           rescue
           end
         end
+      end
+
+      def classes
+        @classes ||= {}
       end
 
       def const_missing(constant)
@@ -29,6 +44,23 @@ module Maintain
         rescue
           super
         end
+      end
+
+      # Detect if we've loaded a backend for this class - that means if its ancestors or
+      # parent classes include any of our back-end classes.
+      def detect(owner)
+        ancestors = owner.ancestors.map(&:to_s)
+        # While owner does not refer to "Object"
+        while owner.superclass
+          ancestors.push(owner.to_s)
+          owner = owner.superclass
+        end
+        classes.each do |back_end, class_name|
+          if ancestors.include? class_name
+            return back_end
+          end
+        end
+        nil
       end
     end
   end

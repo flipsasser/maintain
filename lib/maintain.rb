@@ -1,11 +1,11 @@
 # encoding: UTF-8
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__))
+require 'maintain/backend'
 
 module Maintain
   # We're not really interested in loading anything into memory if we don't need to,
   # so Maintainer, Value, and the Value subclasses are ignored until they're needed.
   autoload(:Maintainer, 'maintain/maintainer')
-  autoload(:Backend, 'maintain/backend')
   autoload(:Value, 'maintain/value')
   autoload(:BitmaskValue, 'maintain/bitmask_value')
   autoload(:IntegerValue, 'maintain/integer_value')
@@ -31,17 +31,7 @@ module Maintain
   # This method is aliased as `maintains` with the intention of allowing developers
   # to code imperatively ("maintain, damn you!") or descriptively ("it maintains, man")
   def maintain(attribute, options = {}, &block)
-    # Detect if this is ActiveRecord::Base or a subclass of it
-    # TODO: Make this not suck
-    if defined?(ActiveRecord::Base)
-      active_record = self == ActiveRecord::Base
-      superclass = self
-      while !active_record && superclass.superclass
-        active_record = superclass == ActiveRecord::Base
-        superclass = superclass.superclass
-      end
-      options[:back_end] = 'active_record' if active_record
-    end
+    options[:back_end] ||= Maintain::Backend.detect(self)
 
     # Create an instance of the maintainer class. It handles all of the state
     # configuration, hooking, aggregation, named_scoping, etc.
@@ -73,16 +63,14 @@ module Maintain
           # Last but not least, run the enter hooks for the new value - cause that's how
           # we do.
           maintainer.hook(:enter, #{attribute}.name, self) if changed
+        else
+          @#{attribute} = value
         end
       end
 
       def #{attribute}
         if maintainer = self.class.maintainers[:#{attribute}]
-          if @#{attribute}
-            @#{attribute}
-          else
-            @#{attribute} = maintainer.value(self)
-          end
+          @#{attribute} ||= maintainer.value(self)
         else
           @#{attribute}
         end
@@ -107,6 +95,5 @@ module Maintain
   end
 end
 
-if defined?(ActiveRecord::Base)
-  ActiveRecord::Base.extend Maintain
-end
+Maintain::Backend.add(:active_record, 'ActiveRecord::Base')
+Maintain::Backend.add(:data_mapper, 'DataMapper::Resource')

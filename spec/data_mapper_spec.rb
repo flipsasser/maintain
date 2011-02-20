@@ -1,21 +1,18 @@
-# Some specs to check against ActiveRecord conflicts. Rails tends to blow
-# shit up when you build it outside of Rails. We'll see how this goes...
-
 proceed = false
 begin
   require 'rubygems'
-  gem 'activerecord', '>= 2.3.5'
-  require 'active_record'
+  gem 'datamapper'
+  require 'datamapper'
   proceed = true
 rescue Gem::LoadError, LoadError
-  puts 'Not testing ActiveRecord (unavailable)'
+  puts 'Not testing DataMapper (unavailable)'
 end
 
-if proceed
-  # Use load to have it evaluate the ActiveRecord::Base extension logic again, in the event
+if proceed = false
+  # Use load to have it evaluate the DataMapper extension logic again, in the event
   # that we've already done that with a previous test.
   load 'lib/maintain.rb'
-  describe Maintain, "ActiveRecord::Base" do
+  describe Maintain, "Datamapper::Resource" do
     it "should automatically be extended" do
       ActiveRecord::Base.should respond_to(:maintain)
     end
@@ -53,18 +50,6 @@ if proceed
           active_maintain_test.save!
         }.should_not raise_error
         ActiveMaintainTest.first.status.should == 'old'
-      end
-
-      it "should allow us to update statuses using update_attributes" do
-        active_maintain_test = ActiveMaintainTest.new
-        active_maintain_test.update_attributes(:status => :bar)
-        ActiveMaintainTest.first.status.should == :bar
-      end
-
-      it "should allow us to update statuses using update_attribute" do
-        active_maintain_test = ActiveMaintainTest.new
-        active_maintain_test.update_attribute(:status, :bar)
-        ActiveMaintainTest.first.status.should == :bar
       end
 
       it "should return the correct name when told to" do
