@@ -97,6 +97,16 @@ if proceed
         ActiveMaintainTest.last.permissions.add?.should be_true
         ActiveMaintainTest.last.permissions.delete?.should be_true
       end
+
+      it "should allow me to set a blank string as bitmask values" do
+        active_maintain_test = ActiveMaintainTest.create(:permissions => '')
+        ActiveMaintainTest.last.permissions.should == 0
+      end
+
+      it "should allow me to set an empty array as bitmask values" do
+        active_maintain_test = ActiveMaintainTest.create(:permissions => [])
+        ActiveMaintainTest.last.permissions.should == 0
+      end
     end
 
     describe "named_scopes" do

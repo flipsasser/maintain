@@ -12,7 +12,7 @@ module Maintain
 
     protected
     def bitmask_for(states)
-      Array(states).map{|value| value_for(value) }.sort.inject(0) {|total, mask| total | mask }
+      Array(states).compact.map{|value| value_for(value) }.sort.inject(0) {|total, mask| total | mask }
     end
 
     def compare_value
