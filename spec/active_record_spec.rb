@@ -27,6 +27,7 @@ if proceed
           ActiveRecord::Schema.define do
             create_table :active_maintain_tests, :force => true do |t|
               t.string :status
+              t.integer :permissions
             end
           end
         end
@@ -70,6 +71,31 @@ if proceed
       it "should return the correct name when told to" do
         active_maintain_test = ActiveMaintainTest.create(:status => 'old')
         ActiveMaintainTest.first.status.name.should == 'old'
+      end
+    end
+
+    describe "bitmasks" do
+      before :each do
+        ActiveMaintainTest.maintain :permissions, :bitmask => true do
+          state :add, 0
+          state :delete, 1
+          state :foo, 2
+          state :bar, 3
+
+          aggregate :everything, :as => [:new, :old, :foo, :bar]
+          aggregate :fakes, :as => [:foo, :bar]
+        end
+      end
+
+      it "should allow me to set a bitmask value" do
+        active_maintain_test = ActiveMaintainTest.create(:permissions => 'add')
+        ActiveMaintainTest.last.permissions.add?.should be_true
+      end
+
+      it "should allow me to set multiple bitmask values" do
+        active_maintain_test = ActiveMaintainTest.create(:permissions => ['add', 'delete'])
+        ActiveMaintainTest.last.permissions.add?.should be_true
+        ActiveMaintainTest.last.permissions.delete?.should be_true
       end
     end
 

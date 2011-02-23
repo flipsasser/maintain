@@ -57,7 +57,7 @@ module Maintain
 
           # Allow the back end to write values in an ORM-specific way
           if maintainer.back_end
-            maintainer.back_end.write(self, :#{attribute}, value)
+            maintainer.back_end.write(self, :#{attribute}, #{attribute}.value)
           end
 
           # Last but not least, run the enter hooks for the new value - cause that's how

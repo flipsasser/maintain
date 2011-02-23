@@ -7,7 +7,7 @@ module Maintain
       end
 
       def read(instance, attribute)
-        instance.attributes[attribute.to_s]
+        instance.read_attribute(attribute)
       end
 
       def state(maintainee, name, attribute, value)

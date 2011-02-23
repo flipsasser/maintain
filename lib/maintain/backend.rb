@@ -10,7 +10,15 @@ module Maintain
           while modules.length > 0
             owner = owner.const_get(modules.shift)
           end
-          owner.extend Maintain
+          if owner.is_a? Module
+            owner.class_eval do
+              class << self
+                include Maintain
+              end
+            end
+          else
+            owner.extend Maintain
+          end
         end
       end
 
