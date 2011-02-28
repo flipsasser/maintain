@@ -13,7 +13,7 @@ describe Maintain do
     before :each do
       MaintainTest.maintain :kind, :integer => true do
         state :man, 1
-        state :woman, 2
+        state :woman, 2, :default => true
         state :none, 3
       end
       @maintainer = MaintainTest.new
@@ -22,6 +22,10 @@ describe Maintain do
     it "should handle numbery strings" do
       @maintainer.kind = "3"
       @maintainer.none?.should be_true
+    end
+
+    it "should handle defaults just fine" do
+      @maintainer.woman?.should be_true
     end
 
     it "should return valid names, too" do

@@ -45,35 +45,28 @@ module Maintain
     class_eval <<-EOC, __FILE__
       def #{attribute}=(value)
         # Find the maintainer on this attribute so we can use it to set values.
-        if maintainer = self.class.maintainers[:#{attribute}]
-          changed = #{attribute} != value
-          # Run the exit hook if we're changing the value
-          maintainer.hook(:exit, #{attribute}.name, self) if changed
+        maintainer = self.class.maintainers[:#{attribute}]
+        changed = #{attribute} != value
+        # Run the exit hook if we're changing the value
+        maintainer.hook(:exit, #{attribute}.name, self) if changed
 
-          # Then set the value itself. Maintainer::State will return the value you set,
-          # so if we're setting to nil we get rid of the attribute entirely - it's not
-          # needed and we want the getter to return nil in that case.
-          #{attribute}.set_value(value)
+        # Then set the value itself. Maintainer::State will return the value you set,
+        # so if we're setting to nil we get rid of the attribute entirely - it's not
+        # needed and we want the getter to return nil in that case.
+        #{attribute}.set_value(value)
 
-          # Allow the back end to write values in an ORM-specific way
-          if maintainer.back_end
-            maintainer.back_end.write(self, :#{attribute}, #{attribute}.value)
-          end
-
-          # Last but not least, run the enter hooks for the new value - cause that's how
-          # we do.
-          maintainer.hook(:enter, #{attribute}.name, self) if changed
-        else
-          @#{attribute} = value
+        # Allow the back end to write values in an ORM-specific way
+        if maintainer.back_end
+          maintainer.back_end.write(self, :#{attribute}, #{attribute}.value)
         end
+
+        # Last but not least, run the enter hooks for the new value - cause that's how
+        # we do.
+        maintainer.hook(:enter, #{attribute}.name, self) if changed
       end
 
       def #{attribute}
-        if maintainer = self.class.maintainers[:#{attribute}]
-          @#{attribute} ||= maintainer.value(self)
-        else
-          @#{attribute}
-        end
+        @#{attribute} ||= self.class.maintainers[:#{attribute}].value(self)
       end
     EOC
 
@@ -85,7 +78,15 @@ module Maintain
   alias :maintains :maintain
 
   def maintainers #:nodoc:
-    @maintainers ||= {}
+    @maintainers ||= begin
+      maintainers = {}
+      superk = superclass
+      while superk.respond_to?(:maintainers)
+        maintainers.merge!(superk.maintainers)
+        superk = superk.superclass
+      end
+      maintainers
+    end
   end
 
   if File.file?(version_path = File.join(File.dirname(__FILE__), '..', 'VERSION'))
