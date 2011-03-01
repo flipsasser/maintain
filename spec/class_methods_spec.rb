@@ -16,7 +16,7 @@ describe Maintain do
   end
 
   it "should provide a hash of key/value stores" do
-    MaintainTest.state.should == {:new => :new, :overdue => :overdue, :closed => :closed}
+    MaintainTest.state.should == [:new, :overdue, :closed]
   end
 
   it "should provide a hash of key/value stores in an Integer case, too" do
@@ -25,7 +25,7 @@ describe Maintain do
       state :overdue, 2
       state :closed, 3
     end
-    MaintainTest.state_two.should == {:new => 1, :overdue => 2, :closed => 3}
+    MaintainTest.state_two.should == [[:new, 1], [:overdue, 2], [:closed, 3]]
   end
 
   it "should not overwrite existing class methods" do
@@ -39,6 +39,6 @@ describe Maintain do
       state :closed
     end
     MaintainTest.foo.should == "foo"
-    MaintainTest.maintain_foo.should == {:new => :new, :overdue => :overdue, :closed => :closed}
+    MaintainTest.maintain_foo.should == [:new, :overdue, :closed]
   end
 end

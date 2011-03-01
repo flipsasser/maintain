@@ -73,7 +73,7 @@ module Maintain
     class_eval <<-EOC, __FILE__
       class << self
         def maintain_#{attribute}
-          @#{attribute} ||= Hash[*maintainers[:#{attribute}].states.map {|key, value| [key, value[:value]]}.flatten]
+          @#{attribute} ||= maintainers[:#{attribute}].states.sort{|a, b| (a[1][:compare_value] || a[1][:value]) <=> (b[1][:compare_value] || b[1][:value]) }.map{|key, value| key == value[:value] ? key : [key, value[:value]]}
         end
         #{"alias :#{attribute} :maintain_#{attribute}" unless respond_to?(attribute)}
       end
