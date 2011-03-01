@@ -70,6 +70,15 @@ module Maintain
       end
     EOC
 
+    class_eval <<-EOC, __FILE__
+      class << self
+        def maintain_#{attribute}
+          @#{attribute} ||= Hash[*maintainers[:#{attribute}].states.map {|key, value| [key, value[:value]]}.flatten]
+        end
+        #{"alias :#{attribute} :maintain_#{attribute}" unless respond_to?(attribute)}
+      end
+    EOC
+
     # Last! Not least! Save our maintainer directly on this class. We'll use it in our setters (as in above)
     # and we'll also modify it instead of replacing it outright, so subclasses or mixins can extend functionality
     # without replacing it.
