@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{maintain}
-  s.version = "0.2.6"
+  s.version = "0.2.9"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
-  s.date = %q{2011-02-28}
+  s.date = %q{2011-06-02}
   s.description = %q{
       Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
       and hooks that really work. It can be used for multiple attributes and will always do its best to
@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
     "spec/active_record_spec.rb",
     "spec/aggregates_spec.rb",
     "spec/bitwise_spec.rb",
+    "spec/class_methods_spec.rb",
     "spec/comparing_state_spec.rb",
     "spec/data_mapper_spec.rb",
     "spec/defining_states_spec.rb",
@@ -52,26 +53,10 @@ Gem::Specification.new do |s|
   ]
   s.homepage = %q{http://github.com/flipsasser/maintain}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{A Ruby state machine that lets your code do the driving}
-  s.test_files = [
-    "spec/active_record_spec.rb",
-    "spec/aggregates_spec.rb",
-    "spec/bitwise_spec.rb",
-    "spec/comparing_state_spec.rb",
-    "spec/data_mapper_spec.rb",
-    "spec/defining_states_spec.rb",
-    "spec/hooks_spec.rb",
-    "spec/integer_spec.rb",
-    "spec/maintain_spec.rb",
-    "spec/object_spec.rb",
-    "spec/proxy_spec.rb",
-    "spec/setting_state_spec.rb",
-    "spec/subclass_spec.rb"
-  ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then

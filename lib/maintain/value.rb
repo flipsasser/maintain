@@ -68,6 +68,7 @@ module Maintain
       state_value_for(state, :compare_value)
     end
 
+    # TODO: Sweet god, this is hideous and needs to be cleaned up!
     def method_missing(method, *args)
       if (method.to_s =~ /^(.+)\?$/)
         check = $1.to_sym
@@ -86,9 +87,14 @@ module Maintain
             end
           EOC
           return aggregates.include?(@value)
+        else
+          super
         end
+      elsif value_for(@value).respond_to?(method)
+        value_for(@value).send(method, *args)
+      else
+        super
       end
-      super
     end
 
     def state_name_for(value)

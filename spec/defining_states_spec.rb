@@ -54,6 +54,14 @@ describe Maintain do
       }.should raise_error(NoMethodError)
     end
 
+    it "should pass valid methods to the actual value object" do
+      MaintainTest.maintain :existant_attribute do
+        state :new, :default => true
+      end
+      MaintainTest.new.existant_attribute.to_i.should == 3361
+    end
+
+
     describe "as bitmask" do
       it "should calculate a base-2 compatible integer" do
         maintainer = MaintainTest.maintain :permissions, :bitmask => true do
