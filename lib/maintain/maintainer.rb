@@ -41,7 +41,11 @@ module Maintain
 
     def default(state = nil)
       if state
-        @default = state
+        if bitmask?
+          @default = (@default || 0) | states[state][:value]
+        else
+          @default = state
+        end
       else
         @default
       end
@@ -108,9 +112,6 @@ module Maintain
         options = value
         value = nil
       end
-      if options.has_key?(:default)
-        default(name)
-      end
       @increment ||= 0
       if bitmask?
         unless value.is_a?(Integer)
@@ -125,6 +126,12 @@ module Maintain
       @increment += 1
       if !maintainee.respond_to?(name) && back_end
         back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value
+      end
+
+      # We need the states hash to contain the compare_value for this guy before we can set defaults on the bitmask,
+      # since the default should actually be a bitmask of all possible default states
+      if options.has_key?(:default)
+        default(name)
       end
 
       # Now we're going to add proxies to test for state. These methods only get added if a

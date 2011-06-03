@@ -29,10 +29,10 @@ module Maintain
         if $2 == '?'
           self.class.class_eval <<-EOC
             def #{method}
-              @value & #{compare.inspect} != 0
+              value_for(@value) & #{compare.inspect} != 0
             end
           EOC
-          @value & compare != 0
+          value_for(@value) & compare != 0
         else
           self.class.class_eval <<-EOC
             def #{method}
