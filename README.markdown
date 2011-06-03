@@ -150,6 +150,24 @@ relational database - or you could implement a single bitmask column:
 	
 	# foo.state will boil happily down to an integer when you store it.
 
+You can also set multiple defaults on bitmasks, just in case you're defaults involve some complicated mix of options:
+
+  class Foo
+    extend Maintain
+    maintains :state, :bitmask => true do
+      state :new, 1, :default => true
+      state :old, 2
+      state :borrowed, 3, :default => true
+      state :blue, 4
+    end
+  end
+  
+  foo = Foo.new
+  foo.new? 						#=> true
+  foo.old? 						#=> false
+  foo.borrowed? 						#=> true
+  foo.blue? 						#=> false
+
 Named Scopes
 -
 

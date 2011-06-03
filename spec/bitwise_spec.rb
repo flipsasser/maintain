@@ -19,6 +19,7 @@ describe Maintain do
       @maintainer = MaintainTest.new
       @maintainer.permissions.edit?.should be_true
       @maintainer.permissions.delete?.should be_true
+      @maintainer.permissions.update?.should_not be_true
     end
   end
 
