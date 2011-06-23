@@ -74,9 +74,21 @@ describe Maintain do
               state :closed
             end
             maintainer = MaintainTest.new
-            maintainer.state.new?.should be_true
-            maintainer.state.overdue?.should be_false
-            maintainer.state.closed?.should be_false
+            maintainer.new?.should be_true
+            maintainer.overdue?.should be_false
+            maintainer.closed?.should be_false
+          end
+
+          it "should work with an attribute name prefix, too!" do
+            MaintainTest.maintain :state, :default => :new do
+              state :new
+              state :overdue
+              state :closed
+            end
+            maintainer = MaintainTest.new
+            maintainer.state_new?.should be_true
+            maintainer.state_overdue?.should be_false
+            maintainer.state_closed?.should be_false
           end
 
           it "should not override pre-existing methods" do

@@ -25,11 +25,11 @@ module Maintain
       def build(back_end, maintainer)
         back_end = back_end.to_s.split('_').map(&:capitalize).join('')
         if constants.include? back_end.to_s
-          const_get(back_end.to_sym).new
+          const_get(back_end.to_sym).new(maintainer)
         else
           begin
             back_end = const_missing(back_end)
-            back_end.new
+            back_end.new(maintainer)
           rescue
           end
         end

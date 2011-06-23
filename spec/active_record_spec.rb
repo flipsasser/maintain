@@ -19,19 +19,22 @@ if proceed
     it "should automatically be extended" do
       ActiveRecord::Base.should respond_to(:maintain)
     end
-    describe "accessors" do
-      before :each do
-        ActiveRecord::Base.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :pool => 5, :timeout => 5000})
-        class ::ActiveMaintainTest < ActiveRecord::Base; end
-        silence_stream(STDOUT) do
-          ActiveRecord::Schema.define do
-            create_table :active_maintain_tests, :force => true do |t|
-              t.string :status
-              t.integer :permissions
-            end
+
+    before :each do
+      ActiveRecord::Base.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :pool => 5, :timeout => 5000})
+      class ::ActiveMaintainTest < ActiveRecord::Base; end
+      silence_stream(STDOUT) do
+        ActiveRecord::Schema.define do
+          create_table :active_maintain_tests, :force => true do |t|
+            t.string :status
+            t.integer :permissions
           end
         end
+      end
+    end
 
+    describe "accessors" do
+      before :all do
         ActiveMaintainTest.maintain :status do
           state :new, :default => true
           state :old
@@ -75,7 +78,7 @@ if proceed
     end
 
     describe "bitmasks" do
-      before :each do
+      before :all do
         ActiveMaintainTest.maintain :permissions, :bitmask => true do
           state :add, 0
           state :delete, 1
@@ -114,7 +117,67 @@ if proceed
       end
     end
 
+    describe "hooks" do
+      before :all do
+        ActiveMaintainTest.maintain :status do
+          state :new, :default => true
+          state :old
+          state :foo
+          state :bar
+          aggregate :everything, :as => [:new, :old, :foo, :bar]
+          aggregate :fakes, :as => [:foo, :bar]
+
+          on :enter, :old, :do_something
+          on :exit, :foo, :do_something_else
+          
+        end
+
+        ActiveMaintainTest.class_eval do
+          def do_something
+            # Do... something?
+          end
+
+          def do_something_else
+            # Do something else!
+          end
+        end
+      end
+
+      it "should not send hooks immediately on attribute setting" do
+        active_maintain_test = ActiveMaintainTest.new
+        active_maintain_test.should_not_receive(:do_something)
+        active_maintain_test.status = :old
+      end
+
+      it "should send hooks when a record is saved" do
+        active_maintain_test = ActiveMaintainTest.new
+        active_maintain_test.should_receive(:do_something)
+        active_maintain_test.status = :old
+        active_maintain_test.save
+      end
+
+      it "should send :exit hooks when a record is saved after a value is exited from" do
+        active_maintain_test = ActiveMaintainTest.new
+        active_maintain_test.status = :foo
+        active_maintain_test.save
+        active_maintain_test.should_receive(:do_something_else)
+        active_maintain_test.status = :new
+        active_maintain_test.save
+      end
+    end
+
     describe "named_scopes" do
+      before :all do
+        ActiveMaintainTest.maintain :status do
+          state :new, :default => true
+          state :old
+          state :foo
+          state :bar
+          aggregate :everything, :as => [:new, :old, :foo, :bar]
+          aggregate :fakes, :as => [:foo, :bar]
+        end
+      end
+
       it "should create named_scopes for all states" do
         ActiveMaintainTest.should respond_to(:old)
         ActiveMaintainTest.old.should respond_to(:each)

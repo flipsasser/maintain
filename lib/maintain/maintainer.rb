@@ -91,13 +91,17 @@ module Maintain
       if block_given?
         method = block
       end
-      hooks[state.to_sym] ||= {}
-      hooks[state.to_sym][event.to_sym] ||= []
-      method_hash = {:method => method}.merge(options)
-      if old_definition = hooks[state.to_sym][event.to_sym].find{|hook| hook[:method] == method}
-        old_definition.merge!(method_hash)
+      if back_end && back_end.respond_to?(:on)
+        back_end.on(maintainee, @attribute, event, state, method, options)
       else
-        hooks[state.to_sym][event.to_sym].push(method_hash)
+        hooks[state.to_sym] ||= {}
+        hooks[state.to_sym][event.to_sym] ||= []
+        method_hash = {:method => method}.merge(options)
+        if old_definition = hooks[state.to_sym][event.to_sym].find{|hook| hook[:method] == method}
+          old_definition.merge!(method_hash)
+        else
+          hooks[state.to_sym][event.to_sym].push(method_hash)
+        end
       end
     end
 
@@ -134,19 +138,24 @@ module Maintain
         default(name)
       end
 
+      if options.has_key?(:enter)
+        on :enter, name.to_sym, options.delete(:enter)
+      end
+
+      if options.has_key?(:exit)
+        on :exit, name.to_sym, options.delete(:exit)
+      end
+
       # Now we're going to add proxies to test for state. These methods only get added if a
       # method of their name doesn't already exist.
       boolean_method = "#{name}?"
-      if method_free?(boolean_method)
-        # Define it if'n it don't already exit! These are just proxies - so Foo.maintains(:state) { state :awesome }
-        # will now have Foo.new.awesome?. But that's really just a proxy for Foo.new.state.awesome?
-        # So they're just shortcuts for brevity's sake.
-        maintainee.class_eval <<-EOC
-          def #{boolean_method}
-            #{@attribute}.#{boolean_method}
-          end
-        EOC
-      end
+      # Override any attribute_state? methods, because those we need for hooks...
+      maintainee.class_eval <<-EOC
+        def #{@attribute}_#{boolean_method}
+          #{@attribute}.#{boolean_method}
+        end
+        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if method_free?(boolean_method)}
+      EOC
     end
 
     def states

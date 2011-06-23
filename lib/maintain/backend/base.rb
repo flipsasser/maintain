@@ -1,8 +1,14 @@
 module Maintain
   module Backend
     class Base
+      attr_reader :maintainer
+
       def aggregate(maintainee, attribute, name, options, states)
         require_method :aggregate
+      end
+
+      def initialize(maintainer)
+        @maintainer = maintainer
       end
 
       def read(instance, attribute)

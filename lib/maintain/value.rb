@@ -79,7 +79,7 @@ module Maintain
             end
           EOC
           # Calling `method` on ourselves fails. Something to do w/subclasses. Meh.
-          return self == $1.to_sym
+          return self == check.to_sym
         elsif aggregates = @state.aggregates[check]
           self.class.class_eval <<-EOC
             def #{method}
