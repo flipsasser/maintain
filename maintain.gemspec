@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{maintain}
-  s.version = "0.2.10"
+  s.version = "0.2.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
-  s.date = %q{2011-06-03}
+  s.date = %q{2011-07-13}
   s.description = %q{
       Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
       and hooks that really work. It can be used for multiple attributes and will always do its best to

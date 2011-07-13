@@ -259,7 +259,9 @@ if proceed
 
       it "should not screw with to_json" do
         foo = ActiveMaintainTest.create
-        foo.as_json.should == {:active_maintain_test => {:id => foo.id, :permissions => 0, :status => :new}.stringify_keys}.stringify_keys
+        json_hash = {:active_maintain_test => {:id => foo.id, :permissions => 0, :status => :new}.stringify_keys}.stringify_keys
+        foo.as_json.should == json_hash
+        json_hash.to_json.should == json_hash.to_json
       end
     end
   end

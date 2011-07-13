@@ -66,7 +66,7 @@ module Maintain
       end
 
       def #{attribute}
-        @#{attribute} ||= self.class.maintainers[:#{attribute}].value(self)
+        @#{attribute}_maintainer ||= self.class.maintainers[:#{attribute}].value(self)
       end
     EOC
 
