@@ -9,9 +9,25 @@ module Maintain
       def on(maintainee, attribute, event, state, method, options)
         attribute_check = "#{attribute}#{"_was" if event == :exit}_#{state}?"
         maintainee.before_save method, :if => lambda {|instance|
-          instance.send("#{attribute}_changed?") && instance.send(attribute_check) &&
-            (!options[:if] || (options[:if].is_a?(Proc) && instance.instance_eval(&options[:unless])) || instance.send(options[:if])) &&
-            (!options[:unless] || !(options[:unless].is_a?(Proc) && instance.instance_eval(&options[:unless])) || !instance.send(options[:unless]))
+          if instance.send("#{attribute}_changed?") && instance.send(attribute_check)
+            if options[:if]
+              if options[:if].is_a?(Proc)
+                instance.instance_eval(&options[:if])
+              else
+                instance.send(options[:if])
+              end
+            elsif options[:unless]
+              if options[:unless].is_a?(Proc)
+                !instance.instance_eval(&options[:unless])
+              else
+                !instance.send(options[:unless])
+              end
+            else
+              true
+            end
+          else
+            false
+          end
         }
       end
 

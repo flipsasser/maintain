@@ -129,7 +129,8 @@ if proceed
 
           on :enter, :old, :do_something
           on :exit, :foo, :do_something_else
-          
+          on :enter, :bar, lambda { hello! }, :if => :run_hello?
+          on :exit, :bar, lambda { hello! }, :unless => :run_hello?
         end
 
         ActiveMaintainTest.class_eval do
@@ -139,6 +140,18 @@ if proceed
 
           def do_something_else
             # Do something else!
+          end
+
+          def hello!
+            
+          end
+
+          def run_hello!
+            @run_hello = !@run_hello# ? false : true
+          end
+
+          def run_hello?
+            @run_hello
           end
         end
       end
@@ -162,6 +175,38 @@ if proceed
         active_maintain_test.save
         active_maintain_test.should_receive(:do_something_else)
         active_maintain_test.status = :new
+        active_maintain_test.save
+      end
+
+      it "should not run the :bar enter hook if run_hello? returns false" do
+        active_maintain_test = ActiveMaintainTest.new
+        active_maintain_test.should_not_receive(:hello!)
+        active_maintain_test.status = :bar
+        active_maintain_test.save
+      end
+
+      it "should run the :bar enter hook if run_hello? returns true" do
+        active_maintain_test = ActiveMaintainTest.new
+        active_maintain_test.run_hello!
+        active_maintain_test.should_receive(:hello!)
+        active_maintain_test.status = :bar
+        active_maintain_test.save
+      end
+
+      it "should not run the :bar exit hook if run_hello? returns true" do
+        active_maintain_test = ActiveMaintainTest.create(:status => :bar)
+        active_maintain_test.run_hello!
+        active_maintain_test.run_hello?.should be_true
+        active_maintain_test.should_not_receive(:hello!)
+        active_maintain_test.status = :foo
+        active_maintain_test.save
+      end
+
+      it "should run the :bar exit hook if run_hello? returns false" do
+        active_maintain_test = ActiveMaintainTest.create(:status => :bar)
+        active_maintain_test.run_hello?.should be_false
+        active_maintain_test.should_receive(:hello!)
+        active_maintain_test.status = :foo
         active_maintain_test.save
       end
     end
@@ -198,6 +243,24 @@ if proceed
         ActiveMaintainTest.everything.should == [one, two, three, four]
       end
 
+    end
+
+    describe "serialization" do
+      before :all do
+        ActiveMaintainTest.maintain :status do
+          state :new, :default => true
+          state :old
+          state :foo
+          state :bar
+          aggregate :everything, :as => [:new, :old, :foo, :bar]
+          aggregate :fakes, :as => [:foo, :bar]
+        end
+      end
+
+      it "should not screw with to_json" do
+        foo = ActiveMaintainTest.create
+        foo.as_json.should == {:active_maintain_test => {:id => foo.id, :permissions => 0, :status => :new}.stringify_keys}.stringify_keys
+      end
     end
   end
 end
