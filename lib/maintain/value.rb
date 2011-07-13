@@ -25,6 +25,10 @@ module Maintain
       (compare_value == compare_value_for(value)) || super
     end
 
+    def as_json(options = nil)
+      value
+    end
+
     def class
       value.class
     end
@@ -59,7 +63,11 @@ module Maintain
       @value
     end
 
-    # private
+    def value_for(state)
+      state_value_for(state, :value)
+    end
+
+    private
     def compare_value
       @compare_value ||= compare_value_for(@value)
     end
@@ -115,10 +123,6 @@ module Maintain
       else
         state
       end
-    end
-
-    def value_for(state)
-      state_value_for(state, :value)
     end
   end
 end

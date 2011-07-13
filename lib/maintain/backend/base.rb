@@ -7,10 +7,6 @@ module Maintain
         require_method :aggregate
       end
 
-      def initialize(maintainer)
-        @maintainer = maintainer
-      end
-
       def read(instance, attribute)
         require_method :read
       end

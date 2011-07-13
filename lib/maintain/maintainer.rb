@@ -69,7 +69,7 @@ module Maintain
       @maintainee = maintainee.name
       @attribute = attribute.to_sym
       if back_end = options.delete(:back_end)
-        @back_end = Maintain::Backend.build(back_end, self)
+        @back_end = Maintain::Backend.build(back_end)
       end
       options.each do |key, value|
         self.send(key, value)

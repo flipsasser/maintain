@@ -22,14 +22,14 @@ module Maintain
         end
       end
 
-      def build(back_end, maintainer)
+      def build(back_end)
         back_end = back_end.to_s.split('_').map(&:capitalize).join('')
         if constants.include? back_end.to_s
-          const_get(back_end.to_sym).new(maintainer)
+          const_get(back_end.to_sym).new
         else
           begin
             back_end = const_missing(back_end)
-            back_end.new(maintainer)
+            back_end.new
           rescue
           end
         end
