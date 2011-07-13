@@ -179,7 +179,7 @@ module Maintain
     end
 
     def maintainee
-      @_maintainee ||= @maintainee.split('::').inject(Object) {|mod, const| mod.const_get(const) }
+      @maintainee.split('::').inject(Object) {|mod, const| mod.const_get(const) }
     end
 
     def method_free?(method_name, class_method = false)
