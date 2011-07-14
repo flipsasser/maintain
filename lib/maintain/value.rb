@@ -26,7 +26,7 @@ module Maintain
     end
 
     def as_json(options = nil)
-      @value
+      @value.to_s
     end
 
     def class
