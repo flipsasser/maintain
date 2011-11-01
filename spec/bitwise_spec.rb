@@ -1,6 +1,7 @@
 # Tests for the bitwise / bitmask functionality.
 
-require 'lib/maintain'
+require 'spec_helper'
+require 'maintain'
 
 describe Maintain do
   before :each do

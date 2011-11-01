@@ -14,7 +14,7 @@ end
 if proceed
   # Use load to have it evaluate the ActiveRecord::Base extension logic again, in the event
   # that we've already done that with a previous test.
-  load 'lib/maintain.rb'
+  load 'maintain.rb'
   describe Maintain, "ActiveRecord::Base" do
     it "should automatically be extended" do
       ActiveRecord::Base.should respond_to(:maintain)

@@ -8,10 +8,12 @@ rescue Gem::LoadError, LoadError
   puts 'Not testing DataMapper (unavailable)'
 end
 
+require 'spec_helper'
+
 if proceed
   # Use load to have it evaluate the DataMapper extension logic again, in the event
   # that we've already done that with a previous test.
-  load 'lib/maintain.rb'
+  load 'maintain.rb'
 
   DataMapper.setup(:default, "sqlite3::memory:")
 

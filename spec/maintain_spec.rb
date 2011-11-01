@@ -1,6 +1,7 @@
 # Basic class method specs
 
-require 'lib/maintain'
+require 'spec_helper'
+require 'maintain'
 
 describe Maintain do
   before :each do

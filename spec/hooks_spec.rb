@@ -1,6 +1,7 @@
 # Hooks on state entrance / exit. Needs more attention.
 
-require 'lib/maintain'
+require 'spec_helper'
+require 'maintain'
 
 describe Maintain, "hooks" do
   before :each do

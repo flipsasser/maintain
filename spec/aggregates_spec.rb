@@ -1,6 +1,7 @@
 # Specs for aggregation of state
 
-require 'lib/maintain'
+require 'spec_helper'
+require 'maintain'
 
 describe Maintain, "aggregates" do
   before :each do

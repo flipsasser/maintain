@@ -1,6 +1,7 @@
 # Configuration point number one: setting and configuring states
 
-require 'lib/maintain'
+require 'spec_helper'
+require 'maintain'
 
 describe Maintain do
   before :each do
@@ -58,7 +59,8 @@ describe Maintain do
       MaintainTest.maintain :existant_attribute do
         state :new, :default => true
       end
-      MaintainTest.new.existant_attribute.to_i.should == 3361
+      # This changed in Ruby 1.9.2 on account of the String class not knowing WTF "to_i" is
+      MaintainTest.new.existant_attribute.size.should == 3
     end
 
 
