@@ -38,7 +38,6 @@ module Maintain
       def state(maintainee, name, attribute, value, options = {})
         options = {:dirty => true}.merge(options)
         conditions = {:conditions => {attribute => value}}
-        puts "NAMING SCOPE: #{name} with #{conditions.inspect} "
         named_scope_method = defined?(::ActiveRecord::VERSION) && ::ActiveRecord::VERSION::STRING >= '3' ? :scope : :named_scope
         maintainee.send(named_scope_method, name, conditions) if !maintainee.respond_to?(name) || options[:force]
         maintainee.send(named_scope_method, "#{attribute}_#{name}", conditions)

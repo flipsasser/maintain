@@ -1,3 +1,6 @@
+0.2.20
+	* Removed accidental debugging `puts` calls from ActiveRecord backend
+
 0.2.19
 	* Added :force option to state and aggregate definitions, allowing you
 		to force a method overwrite
