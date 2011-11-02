@@ -1,0 +1,9 @@
+0.2.19
+	* Added :force option to state and aggregate definitions, allowing you
+		to force a method overwrite
+	* Added an attribute_name alias to named scopes in the ActiveRecord
+		backend, since Rails 3.1 has eaten up a number of previously
+		usable state names
+
+0.2.18
+	* Ruby 1.9.2 and Rails 3.1 compatibility updates (no API changes)
