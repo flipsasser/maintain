@@ -3,11 +3,12 @@ module Maintain
   class Maintainer
     attr_reader :back_end
 
-    def aggregate(name, options)
-      if options.is_a?(Hash) && options.has_key?(:as)
-        options = options[:as]
+    def aggregate(name, conditions, options = {})
+      if conditions.is_a?(Hash) && conditions.has_key?(:as)
+        options = conditions
+        conditions = options[:as]
       end
-      aggregates[name] = options
+      aggregates[name] = conditions
       # Now we're going to add proxies to test for state being in this aggregate. Don't create
       # this method unless it doesn't exist.
       boolean_method = "#{name}?"
@@ -22,8 +23,8 @@ module Maintain
         EOC
       end
       # Now define the state
-      if back_end && method_free?(name, true)
-        back_end.aggregate(maintainee, name, @attribute, options.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] })
+      if back_end
+        back_end.aggregate(maintainee, name, @attribute, conditions.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }, {:force => options[:force]})
       end
     end
 
@@ -128,8 +129,8 @@ module Maintain
       value ||= name
       states[name] = {:compare_value => !bitmask? && value.is_a?(Integer) ? value : @increment, :value => value}
       @increment += 1
-      if !maintainee.respond_to?(name) && back_end
-        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value
+      if back_end
+        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value, :force => options[:force]
       end
 
       # We need the states hash to contain the compare_value for this guy before we can set defaults on the bitmask,
@@ -154,7 +155,7 @@ module Maintain
         def #{@attribute}_#{boolean_method}
           #{@attribute}.#{boolean_method}
         end
-        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if method_free?(boolean_method)}
+        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if method_free?(boolean_method) || options[:force]}
       EOC
     end
 

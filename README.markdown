@@ -39,6 +39,12 @@ But wait! What if you've already defined "new?" on the Foo class? Not to worry, 
 
 	foo.state.new?
 
+**UPDATE:** what happens when you *want* Maintain to step on your toes? You can add an optionally add:
+
+	state :new, :force => true
+
+...and Maintain will make sure your methods get added, even if it overwrites a previous method.
+
 Comparisons
 -
 

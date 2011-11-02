@@ -1,9 +1,9 @@
 module Maintain
   module Backend
     class ActiveRecord < Maintain::Backend::Base
-      def aggregate(maintainee, name, attribute, states)
+      def aggregate(maintainee, name, attribute, states, options = {})
         # named_scope will handle the array of states as "IN" in SQL
-        state(maintainee, name, attribute, states, false)
+        state(maintainee, name, attribute, states, options.merge(:dirty => false))
       end
 
       def on(maintainee, attribute, event, state, method, options)
@@ -35,14 +35,14 @@ module Maintain
         instance.read_attribute(attribute)
       end
 
-      def state(maintainee, name, attribute, value, dirty = true)
+      def state(maintainee, name, attribute, value, options = {})
+        options = {:dirty => true}.merge(options)
         conditions = {:conditions => {attribute => value}}
-        if defined?(::ActiveRecord::VERSION) && ::ActiveRecord::VERSION::STRING >= '3'
-          maintainee.scope name, conditions
-        else
-          maintainee.named_scope name, conditions
-        end
-        if dirty
+        puts "NAMING SCOPE: #{name} with #{conditions.inspect} "
+        named_scope_method = defined?(::ActiveRecord::VERSION) && ::ActiveRecord::VERSION::STRING >= '3' ? :scope : :named_scope
+        maintainee.send(named_scope_method, name, conditions) if !maintainee.respond_to?(name) || options[:force]
+        maintainee.send(named_scope_method, "#{attribute}_#{name}", conditions)
+        if options[:dirty]
           maintainee.class_eval <<-dirty_tracker
             def #{attribute}_was_#{name}?
               #{attribute}_was == self.class.maintainers[:#{attribute}].value(self).value_for(:#{name})

@@ -4,23 +4,20 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{maintain}
-  s.version = "0.2.16"
+  s.name = "maintain"
+  s.version = "0.2.19"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
-  s.date = %q{2011-07-14}
-  s.description = %q{
-      Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,
-      and hooks that really work. It can be used for multiple attributes and will always do its best to
-      stay out of your way and let your code drive the machine, and not vice versa.
-    }
-  s.email = %q{flip@x451.com}
+  s.date = "2011-11-02"
+  s.description = "\n      Maintain is a simple state machine mixin for Ruby objects. It supports comparisons, bitmasks,\n      and hooks that really work. It can be used for multiple attributes and will always do its best to\n      stay out of your way and let your code drive the machine, and not vice versa.\n    "
+  s.email = "flip@x451.com"
   s.extra_rdoc_files = [
     "README.markdown"
   ]
   s.files = [
     ".rspec",
+    "CHANGES",
     "README.markdown",
     "Rakefile",
     "VERSION",
@@ -49,12 +46,13 @@ Gem::Specification.new do |s|
     "spec/proxy_spec.rb",
     "spec/setting_state_spec.rb",
     "spec/spec.opts",
+    "spec/spec_helper.rb",
     "spec/subclass_spec.rb"
   ]
-  s.homepage = %q{http://github.com/flipsasser/maintain}
+  s.homepage = "http://github.com/flipsasser/maintain"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{A Ruby state machine that lets your code do the driving}
+  s.rubygems_version = "1.8.10"
+  s.summary = "A Ruby state machine that lets your code do the driving"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
