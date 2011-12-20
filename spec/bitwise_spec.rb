@@ -64,6 +64,14 @@ describe Maintain do
           maintainer.permissions.foobar?
         }.should raise_error(NoMethodError)
       end
+
+      it "should be enumerable" do
+        maintainer = MaintainTest.new
+        maintainer.permissions = %w(edit update)
+        maintainer.permissions.to_a.should == %w(edit update).map(&:to_sym)
+        maintainer.permissions.should respond_to(:each)
+        maintainer.permissions.select {|permission| permission == :edit}.should == [:edit]
+      end
     end
 
     describe "setter methods" do

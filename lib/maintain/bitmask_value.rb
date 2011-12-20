@@ -1,6 +1,16 @@
 # encoding: UTF-8
 module Maintain
   class BitmaskValue < Value
+    include Enumerable
+
+    def to_a
+      @state.states.select {|key, options| options[:value] & @value > 0}.map(&:first)
+    end
+
+    def each(&block)
+      to_a.each {|state| yield state }
+    end
+
     def initialize(state, value = nil)
       @state = state
       @value = value
