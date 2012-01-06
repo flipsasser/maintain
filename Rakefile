@@ -17,7 +17,7 @@ begin
     t.rcov_opts = ['--exclude', 'spec,gem']
   end
 rescue LoadError
-  # puts "Could not load Rspec. To run tests, use `gem install rspec`"
+  puts "Could not load Rspec. To run tests, use `gem install rspec`"
 end
 
 begin

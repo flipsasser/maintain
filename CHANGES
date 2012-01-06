@@ -1,3 +1,8 @@
+0.2.21
+  * Added Enumerable support to bitmask values, so now you can parse
+    through flags with each, select, map, find, and more! This also
+    means `to_a` is now a method on @object.maintained_attribute.
+
 0.2.20
 	* Removed accidental debugging `puts` calls from ActiveRecord backend
 
