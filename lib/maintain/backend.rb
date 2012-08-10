@@ -5,20 +5,24 @@ module Maintain
     class << self
       def add(name, owner)
         classes[name.to_sym] = owner
+        # Dig through the constant name to find if it exists
         modules = owner.split('::')
         if Object.const_defined?(modules.first) && owner = Object.const_get(modules.shift)
           while modules.length > 0
             owner = owner.const_get(modules.shift)
           end
-          if owner.is_a? Module
-            owner.class_eval do
-              class << self
-                include Maintain
-              end
-            end
-          else
-            owner.extend Maintain
-          end
+          # If it exists, extend it with Maintain methods automatically
+          owner.extend Maintain
+          # TODO: Try and remember why I did this
+          # if owner.is_a? Module
+          #   owner.class_eval do
+          #     class << self
+          #       include Maintain
+          #     end
+          #   end
+          # else
+          #   owner.extend Maintain
+          # end
         end
       end
 

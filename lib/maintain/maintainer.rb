@@ -24,7 +24,7 @@ module Maintain
       end
       # Now define the state
       if back_end
-        back_end.aggregate(maintainee, name, @attribute, conditions.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }, {:force => options[:force]})
+        back_end.aggregate(maintainee, name, @attribute, conditions.select{|value| states.has_key?(value) }.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }.compact, {:force => options[:force]})
       end
     end
 
@@ -156,6 +156,17 @@ module Maintain
           #{@attribute}.#{boolean_method}
         end
         #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if method_free?(boolean_method) || options[:force]}
+      EOC
+
+      # Last but not least, add bang methods to automatically convert to state. Like boolean
+      # methods above, these only get added if they're not already things that are things.
+      bang_method = "#{name}!"
+      # Override any attribute_state! methods
+      maintainee.class_eval <<-EOC
+        def #{@attribute}_#{bang_method}
+          #{@attribute}.#{bang_method}
+        end
+        #{"alias :#{bang_method} :#{@attribute}_#{bang_method}" if method_free?(bang_method) || options[:force]}
       EOC
     end
 

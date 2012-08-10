@@ -33,6 +33,15 @@ describe Maintain do
         @maintainer.state = 'nada'
         @maintainer.state.should be_nil
       end
+
+      it "should support a `state!` bang method, too!" do
+        @maintainer.new!
+        @maintainer.state.should == :new
+        @maintainer.overdue!
+        @maintainer.state.should == :overdue
+        @maintainer.closed!
+        @maintainer.state.should == :closed
+      end
     end
 
     describe "integer states" do

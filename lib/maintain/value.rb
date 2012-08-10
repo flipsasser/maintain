@@ -78,20 +78,31 @@ module Maintain
 
     # TODO: Sweet god, this is hideous and needs to be cleaned up!
     def method_missing(method, *args)
-      if (method.to_s =~ /^(.+)\?$/)
-        check = $1.to_sym
-        if @state.states.has_key?(check)
+      if (method.to_s =~ /^(.+)(\?|\!)$/)
+        value_name = $1.to_sym
+        if @state.states.has_key?(value_name)
+          case $2
+          when '?'
+            self.class.class_eval <<-EOC
+              def #{method}
+                self == #{value_name.inspect}
+              end
+            EOC
+            # Calling `method` on ourselves fails. Something to do w/subclasses. Meh.
+            return self == value_name
+          when '!'
+            self.class.class_eval <<-EOC
+              def #{method}
+                self.set_value(#{value_name.inspect})
+              end
+            EOC
+            # Calling `method` on ourselves fails. Something to do w/subclasses. Meh.
+            return self.set_value(value_name)
+          end
+        elsif $2 == '?' && aggregates = @state.aggregates[value_name]
           self.class.class_eval <<-EOC
             def #{method}
-              self == #{check.inspect}
-            end
-          EOC
-          # Calling `method` on ourselves fails. Something to do w/subclasses. Meh.
-          return self == check.to_sym
-        elsif aggregates = @state.aggregates[check]
-          self.class.class_eval <<-EOC
-            def #{method}
-              @state.aggregates[#{check.inspect}].include?(@value)
+              @state.aggregates[#{value_name.inspect}].include?(@value)
             end
           EOC
           return aggregates.include?(@value)
