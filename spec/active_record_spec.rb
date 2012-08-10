@@ -6,7 +6,10 @@ begin
   require 'rubygems'
   gem 'activerecord', '>= 2.3.5'
   require 'active_record'
+  require 'logger'
   proceed = true
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.logger.level = Logger::Severity::UNKNOWN
 rescue Gem::LoadError, LoadError
   puts 'Not testing ActiveRecord (unavailable)'
 end
