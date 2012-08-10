@@ -43,25 +43,34 @@ But wait! What if you've already defined "new?" on the Foo class? Not to worry, 
 
 	foo.state.new?
 
-**UPDATE:** what happens when you *want* Maintain to step on your toes? You can add an optionally add:
+And when you *want* Maintain to step on your toes? You can add an optionally add:
 
 	state :new, :force => true
 
 ...and Maintain will make sure your methods get added, even if it overwrites a previous method.
 
+**UPDATE: Maintain** now supports `bang!` style methods for declaring a state imperatively. It's as simple as calling
+
+```ruby
+foo = Foo.new
+foo.old!
+foo.state #=> :old
+```
+
 Comparisons
 -
 
-**Maintain** provides quick and easy comparisons between states. You can specify integer values of states to compare on,
-or you can just let it infer what it wants. From our example above:
+**Maintain** provides quick and easy comparisons between states. By default, it uses the order in which you add states to
+rank them. From our example above:
 
 ```ruby
 foo.state = :new
 foo.state > :old	#=> false
-foo.state <= :old	#=> true
+foo.state < :old	#=> true
 ```
 
-You could also do:
+As an optional second argument to `state`, you can specify a comparison value. This will allow you to define states in any
+order you want:
 
 ```ruby
 class Foo
@@ -168,11 +177,11 @@ foo.borrowed? 					#=> true
 foo.blue? 						#=> false
 foo.blue!
 foo.blue? 						#=> true
-	
+
 # foo.state will boil happily down to an integer when you store it.
 ```
 
-You can also set multiple defaults on bitmasks, just in case you're defaults involve some complicated mix of options:
+You can also set multiple defaults on bitmasks, just in case your defaults involve some complicated mix of options:
 
 ```ruby
 class Foo

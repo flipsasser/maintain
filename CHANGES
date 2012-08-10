@@ -1,3 +1,13 @@
+0.2.22
+  * Added `bang!` method support, so now you can call `@object.awesome!`
+    and its state will be set to "awesome." Like all Maintain methods,
+    I'm saying f*ck you to convention and letting you go nuts; you can
+    achieve the same effect one of three ways:
+    
+    @object.awesome!
+    @object.state.awesome!
+    @object.state_awesome!
+
 0.2.21
   * Added Enumerable support to bitmask values, so now you can parse
     through flags with each, select, map, find, and more! This also
