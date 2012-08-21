@@ -86,7 +86,7 @@ module Maintain
     end
 
     def on(*args, &block)
-      options = args.last.is_a?(Hash) ? args.pop : {}
+      options = {:when => :before}.merge(args.last.is_a?(Hash) ? args.pop : {})
       event, state = args.shift, args.shift
       method = args.shift
       if block_given?

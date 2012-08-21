@@ -8,7 +8,8 @@ module Maintain
 
       def on(maintainee, attribute, event, state, method, options)
         attribute_check = "#{attribute}#{"_was" if event == :exit}_#{state}?"
-        maintainee.before_save method, :if => lambda {|instance|
+        hook_method = options[:after] ? :after : :before
+        maintainee.send("#{hook_method}_save", method, :if => lambda {|instance|
           if instance.send("#{attribute}_changed?") && instance.send(attribute_check)
             if options[:if]
               if options[:if].is_a?(Proc)
@@ -28,7 +29,7 @@ module Maintain
           else
             false
           end
-        }
+        })
       end
 
       def read(instance, attribute)

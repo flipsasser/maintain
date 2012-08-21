@@ -134,6 +134,7 @@ if proceed
           on :exit, :foo, :do_something_else
           on :enter, :bar, lambda { hello! }, :if => :run_hello?
           on :exit, :bar, lambda { hello! }, :unless => :run_hello?
+          on :enter, :bar, :show_my_id, :after => true
         end
 
         ActiveMaintainTest.class_eval do
@@ -155,6 +156,10 @@ if proceed
 
           def run_hello?
             @run_hello
+          end
+
+          def show_my_id
+            puts id
           end
         end
       end
@@ -211,6 +216,13 @@ if proceed
         active_maintain_test.should_receive(:hello!)
         active_maintain_test.status = :foo
         active_maintain_test.save
+      end
+
+      it "should ONLY run the :bar / :show_my_id exit hook AFTER the record is saved" do
+        active_maintain_test = ActiveMaintainTest.new(:status => :foo)
+        active_maintain_test.status = :bar
+        active_maintain_test.should_receive(:puts).with(1)
+        active_maintain_test.save!
       end
     end
 
