@@ -15,7 +15,7 @@ begin
     gemspec.authors = ["Flip Sasser"]
     gemspec.files = Dir["{lib}/**/*", "CHANGES.md", "LICENSE", "README.markdown"]
     gemspec.test_files = Dir["{spec}/**/*"]
-    gemspec.required_ruby_version = "1.9.3"
+    gemspec.required_ruby_version = ">= 1.9"
   end
 rescue LoadError
 end

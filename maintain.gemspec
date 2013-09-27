@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "maintain"
-  s.version = "0.4.0"
+  s.version = "0.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Flip Sasser"]
@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://github.com/flipsasser/maintain"
   s.require_paths = ["lib"]
-  s.required_ruby_version = Gem::Requirement.new("= 1.9.3")
+  s.required_ruby_version = Gem::Requirement.new(">= 1.9")
   s.rubygems_version = "2.0.3"
   s.summary = "A Ruby state machine that lets your code do the driving"
   s.test_files = ["spec/active_record_spec.rb", "spec/aggregates_spec.rb", "spec/bitwise_spec.rb", "spec/class_methods_spec.rb", "spec/comparing_state_spec.rb", "spec/data_mapper_spec.rb", "spec/defining_states_spec.rb", "spec/hooks_spec.rb", "spec/integer_spec.rb", "spec/maintain_spec.rb", "spec/object_spec.rb", "spec/proxy_spec.rb", "spec/setting_state_spec.rb", "spec/spec.opts", "spec/spec_helper.rb", "spec/subclass_spec.rb"]
