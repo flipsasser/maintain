@@ -1,5 +1,6 @@
 ## 0.3.0
 * Rails 4 compatibility
+* Ruby 1.9 required as of 0.3
 * Fixed `bang!` methods not saving on the back end
 
 ## 0.2.22
