@@ -13,16 +13,6 @@ module Maintain
           end
           # If it exists, extend it with Maintain methods automatically
           owner.extend Maintain
-          # TODO: Try and remember why I did this
-          # if owner.is_a? Module
-          #   owner.class_eval do
-          #     class << self
-          #       include Maintain
-          #     end
-          #   end
-          # else
-          #   owner.extend Maintain
-          # end
         end
       end
 
@@ -58,8 +48,8 @@ module Maintain
         end
       end
 
-      # Detect if we've loaded a backend for this class - that means if its ancestors or
-      # parent classes include any of our back-end classes.
+      # Detect if we've loaded a backend for this class - that means if its
+      # ancestors or parent classes include any of our back-end classes.
       def detect(owner)
         ancestors = owner.ancestors.map(&:to_s)
         # While owner does not refer to "Object"

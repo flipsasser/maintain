@@ -12,9 +12,9 @@ describe Maintain do
 
   describe "integer" do
     before :each do
-      MaintainTest.maintain :kind, :integer => true do
+      MaintainTest.maintain :kind, integer: true do
         state :man, 1
-        state :woman, 2, :default => true
+        state :woman, 2, default: true
         state :none, 3
       end
       @maintainer = MaintainTest.new

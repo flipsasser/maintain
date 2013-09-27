@@ -21,7 +21,7 @@ describe Maintain do
   end
 
   it "should provide a hash of key/value stores in an Integer case, too" do
-    MaintainTest.maintain :state_two, :integer => true do
+    MaintainTest.maintain :state_two, integer: true do
       state :new, 1
       state :overdue, 2
       state :closed, 3

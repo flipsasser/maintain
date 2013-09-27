@@ -12,9 +12,9 @@ describe Maintain do
 
   describe "bitmask", "class methods" do
     it "should allow multiple defaults" do
-      MaintainTest.maintain :permissions, :bitmask => true do
-        state :edit, 1, :default => true
-        state :delete, 2, :default => true
+      MaintainTest.maintain :permissions, bitmask: true do
+        state :edit, 1, default: true
+        state :delete, 2, default: true
         state :update, 3
       end
       @maintainer = MaintainTest.new
@@ -26,7 +26,7 @@ describe Maintain do
 
   describe "bitmask", "instance methods" do
     before :each do
-      MaintainTest.maintain :permissions, :bitmask => true do
+      MaintainTest.maintain :permissions, bitmask: true do
         state :edit, 1
         state :delete, 2
         state :update, 3

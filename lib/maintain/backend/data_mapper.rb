@@ -11,7 +11,7 @@ module Maintain
       end
 
       def state(maintainee, name, attribute, value)
-        conditions = {:conditions => {attribute => value}}
+        conditions = {conditions: {attribute => value}}
         maintainee.class_eval <<-scope
           def self.#{name}
             all(#{conditions.inspect})

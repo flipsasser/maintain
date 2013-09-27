@@ -17,7 +17,7 @@ describe Maintain do
 
       extend Maintain
 
-      maintains :state, :default => :new do
+      maintains :state, default: :new do
         state :new
         state :overdue
         state :closed
@@ -28,7 +28,7 @@ describe Maintain do
   describe "testing" do
     describe "string states" do
       before :each do
-        MaintainTest.maintain :state, :default => :new do
+        MaintainTest.maintain :state, default: :new do
           state :new
           state :overdue
           state :closed
@@ -48,7 +48,7 @@ describe Maintain do
       describe "boolean methods" do
         describe "on the accessor" do
           it "should work" do
-            MaintainTest.maintain :state, :default => :new do
+            MaintainTest.maintain :state, default: :new do
               state :new
               state :overdue
               state :closed
@@ -69,7 +69,7 @@ describe Maintain do
 
         describe "on the class itself" do
           it "should work, too" do
-            MaintainTest.maintain :state, :default => :new do
+            MaintainTest.maintain :state, default: :new do
               state :new
               state :overdue
               state :closed
@@ -81,7 +81,7 @@ describe Maintain do
           end
 
           it "should work with an attribute name prefix, too!" do
-            MaintainTest.maintain :state, :default => :new do
+            MaintainTest.maintain :state, default: :new do
               state :new
               state :overdue
               state :closed
@@ -99,7 +99,7 @@ describe Maintain do
       end
 
       it "greater than method" do
-        MaintainTest.maintain :state, :default => :closed do
+        MaintainTest.maintain :state, default: :closed do
           state :new
           state :overdue
           state :closed
@@ -116,7 +116,7 @@ describe Maintain do
       end
 
       it "greater-than-or-equal-to method" do
-        MaintainTest.maintain :state, :default => :closed do
+        MaintainTest.maintain :state, default: :closed do
           state :new
           state :overdue
           state :closed
@@ -130,7 +130,7 @@ describe Maintain do
       end
 
       it "less-than-or-equal-to method" do
-        MaintainTest.maintain :state, :default => :new do
+        MaintainTest.maintain :state, default: :new do
           state :new
           state :overdue
           state :closed
@@ -147,7 +147,7 @@ describe Maintain do
 
     describe "identity comparison" do
       before :each do
-        MaintainTest.maintain :state, :default => :new do
+        MaintainTest.maintain :state, default: :new do
           state :new, 1
           state :overdue, 2
           state :closed, 3
@@ -172,7 +172,7 @@ describe Maintain do
 
     describe "integer states" do
       before :each do
-        MaintainTest.maintain :state, :default => :new do
+        MaintainTest.maintain :state, default: :new do
           state :new, 1
           state :overdue, 2
           state :closed, 3
@@ -188,7 +188,7 @@ describe Maintain do
       end
 
       it "greater than method" do
-        MaintainTest.maintain :state, :default => :closed do
+        MaintainTest.maintain :state, default: :closed do
           state :new, 1
           state :overdue, 2
           state :closed, 3
@@ -205,7 +205,7 @@ describe Maintain do
       end
 
       it "greater-than-or-equal-to method" do
-        MaintainTest.maintain :state, :default => :closed do
+        MaintainTest.maintain :state, default: :closed do
           state :new, 1
           state :overdue, 2
           state :closed, 3
@@ -219,7 +219,7 @@ describe Maintain do
       end
 
       it "less-than-or-equal-to method" do
-        MaintainTest.maintain :state, :default => :new do
+        MaintainTest.maintain :state, default: :new do
           state :new, 1
           state :overdue, 2
           state :closed, 3

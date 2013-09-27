@@ -13,8 +13,8 @@ describe Maintain, "hooks" do
   it "should allow me to hook into entry and exit" do
     lambda {
       MaintainTest.maintain :state do
-        state :new, :enter => :new_entered
-        state :old, :enter => :old_entered
+        state :new, enter: :new_entered
+        state :old, enter: :old_entered
         on :enter, :new, :new_entered
         on :exit, :old do
           self.old_entered
@@ -46,7 +46,7 @@ describe Maintain, "hooks" do
       MaintainTest.maintain :state do
         state :new
         state :old
-        on :enter, :new, :new_entered, :if => :run_hook?
+        on :enter, :new, :new_entered, if: :run_hook?
       end
 
       maintain = MaintainTest.new

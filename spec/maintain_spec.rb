@@ -23,7 +23,7 @@ describe Maintain do
   it "should accept a block" do
     lambda {
       MaintainTest.maintain :non_existant_attribute do
-        
+
       end
     }.should_not raise_error
   end

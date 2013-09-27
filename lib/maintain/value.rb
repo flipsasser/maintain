@@ -88,7 +88,8 @@ module Maintain
                 self == #{value_name.inspect}
               end
             EOC
-            # Calling `method` on ourselves fails. Something to do w/subclasses. Meh.
+            # Calling `method` on ourselves fails. Something to do
+            # w/subclasses. Meh.
             return self == value_name
           when '!'
             self.class.class_eval <<-EOC
@@ -125,7 +126,7 @@ module Maintain
     end
 
     def state_value_for(state, value)
-      if (state.is_a?(String) || state.is_a?(Symbol))
+      if state.is_a?(String) || state.is_a?(Symbol)
         if !state.to_s.strip.empty? && state_hash = @state.states[state.to_sym]
           state_hash[value]
         else

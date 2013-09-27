@@ -4,7 +4,9 @@ module Maintain
     include Enumerable
 
     def to_a
-      @state.states.select {|key, options| options[:value] & @value > 0}.map(&:first)
+      @state.states.select do |key, options|
+        options[:value] & @value > 0
+      end.map(&:first)
     end
 
     def each(&block)
@@ -22,7 +24,10 @@ module Maintain
 
     protected
     def bitmask_for(states)
-      Array(states).compact.map{|value| value_for(value) }.compact.sort.inject(0) {|total, mask| total | mask.to_i }
+      bitmask_values = Array(states).compact.map do |value|
+        value_for(value)
+      end.compact.sort
+      bitmask_values.inject(0) {|total, mask| total | mask.to_i }
     end
 
     def compare_value

@@ -23,7 +23,7 @@ state on an attribute:
 class Foo
   extend Maintain
   maintains :state do
-    state :new, :default => true
+    state :new, default: true
     state :old
   end
 end
@@ -45,7 +45,7 @@ But wait! What if you've already defined "new?" on the Foo class? Not to worry, 
 
 And when you *want* Maintain to step on your toes? You can add an optionally add:
 
-	state :new, :force => true
+	state :new, force: true
 
 ...and Maintain will make sure your methods get added, even if it overwrites a previous method.
 
@@ -76,7 +76,7 @@ order you want:
 class Foo
   extend Maintain
   maintains :state do
-    state :new, 12, :default => true
+    state :new, 12, default: true
     state :old, 5
   end
 end
@@ -92,8 +92,8 @@ Hooks
 ```ruby
 class Foo < ActiveRecord::Base
   maintains :state do
-    state :active, :enter => :activated
-    state :inactive, :exit => lambda { self.bar.baz! }
+    state :active, enter: :activated
+    state :inactive, exit: lambda { self.bar.baz! }
   end
 
   def activated
@@ -157,7 +157,7 @@ relational database - or you could implement a single bitmask column:
 ```ruby
 class Foo
   extend Maintain
-  maintains :state, :bitmask => true do
+  maintains :state, bitmask: true do
     # NOTE: Maintain will try to infer a bitmask value if you do not provide an integer here,
     # but if you don't -- and you re-order your state calls later -- all stored bitmasks will
     # be invalidated. You have been warned.
@@ -186,10 +186,10 @@ You can also set multiple defaults on bitmasks, just in case your defaults invol
 ```ruby
 class Foo
   extend Maintain
-  maintains :state, :bitmask => true do
-    state :new, 1, :default => true
+  maintains :state, bitmask: true do
+    state :new, 1, default: true
     state :old, 2
-    state :borrowed, 3, :default => true
+    state :borrowed, 3, default: true
     state :blue, 4
   end
 end

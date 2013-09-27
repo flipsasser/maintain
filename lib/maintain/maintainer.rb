@@ -3,18 +3,31 @@ module Maintain
   class Maintainer
     attr_reader :back_end
 
+    class << self
+      def call_method_or_proc(method, instance)
+        if method.is_a?(Proc)
+          instance.instance_eval(&method)
+        else
+          instance.send(method)
+        end
+      end
+    end
+
     def aggregate(name, conditions, options = {})
       if conditions.is_a?(Hash) && conditions.has_key?(:as)
         options = conditions
         conditions = options[:as]
       end
       aggregates[name] = conditions
-      # Now we're going to add proxies to test for state being in this aggregate. Don't create
-      # this method unless it doesn't exist.
+
+      # Now we're going to add proxies to test for state being in this
+      # aggregate. Don't create this method unless it doesn't exist.
       boolean_method = "#{name}?"
       if method_free?(boolean_method)
-        # Define it if'n it don't already exit! These are just proxies - so Foo.maintains(:state) { state :awesome }
-        # will now have Foo.new.awesome?. But that's really just a proxy for Foo.new.state.awesome?
+        # Define it if'n it don't already exist! These are just proxies - so
+        # Foo.maintains(:state) { state :awesome } will now have
+        # Foo.new.awesome?. But that's really just a proxy for
+        # Foo.new.state.awesome?
         # So they're just shortcuts for brevity's sake.
         maintainee.class_eval <<-EOC
           def #{boolean_method}
@@ -22,9 +35,21 @@ module Maintain
           end
         EOC
       end
+
       # Now define the state
       if back_end
-        back_end.aggregate(maintainee, name, @attribute, conditions.select{|value| states.has_key?(value) }.map{|value| states[value][:value].is_a?(Symbol) ? states[value][:value].to_s : states[value][:value] }.compact, {:force => options[:force]})
+        conditions = conditions.select { |value| states.has_key?(value) }
+        conditions = conditions.map do |value|
+          if states[value][:value].is_a?(Symbol)
+            states[value][:value].to_s
+          else
+            states[value][:value]
+          end
+        end
+        conditions = conditions.compact
+        back_end.aggregate(maintainee, name, @attribute, conditions, {
+          force: options[:force]
+        })
       end
     end
 
@@ -57,11 +82,16 @@ module Maintain
     end
 
     def hook(event, state, instance)
-      if state && state.to_s.strip != '' && hooks[state.to_sym] && hook_definitions = hooks[state.to_sym][event.to_sym]
+      if state && state.to_s.strip != '' && hooks[state.to_sym]
+        hook_definitions = hooks[state.to_sym][event.to_sym] || []
         hook_definitions.each do |hook_definition|
-          next if hook_definition[:if] && !call_method_or_proc_on_instance(hook_definition[:if], instance)
-          next if hook_definition[:unless] && call_method_or_proc_on_instance(hook_definition[:unless], instance)
-          call_method_or_proc_on_instance(hook_definition[:method], instance)
+          if hook_definition[:if]
+            next unless call_method_or_proc(hook_definition[:if], instance)
+          end
+          if hook_definition[:unless]
+            next if call_method_or_proc(hook_definition[:unless], instance)
+          end
+          call_method_or_proc(hook_definition[:method], instance)
         end
       end
     end
@@ -86,7 +116,7 @@ module Maintain
     end
 
     def on(*args, &block)
-      options = {:when => :before}.merge(args.last.is_a?(Hash) ? args.pop : {})
+      options = {when: :before}.merge(args.last.is_a?(Hash) ? args.pop : {})
       event, state = args.shift, args.shift
       method = args.shift
       if block_given?
@@ -97,7 +127,7 @@ module Maintain
       else
         hooks[state.to_sym] ||= {}
         hooks[state.to_sym][event.to_sym] ||= []
-        method_hash = {:method => method}.merge(options)
+        method_hash = {method: method}.merge(options)
         if old_definition = hooks[state.to_sym][event.to_sym].find{|hook| hook[:method] == method}
           old_definition.merge!(method_hash)
         else
@@ -127,14 +157,15 @@ module Maintain
         integer(true)
       end
       value ||= name
-      states[name] = {:compare_value => !bitmask? && value.is_a?(Integer) ? value : @increment, :value => value}
+      states[name] = {compare_value: !bitmask? && value.is_a?(Integer) ? value : @increment, value: value}
       @increment += 1
       if back_end
-        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value, :force => options[:force]
+        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value, force: options[:force]
       end
 
-      # We need the states hash to contain the compare_value for this guy before we can set defaults on the bitmask,
-      # since the default should actually be a bitmask of all possible default states
+      # We need the states hash to contain the compare_value for this guy
+      # before we can set defaults on the bitmask, since the default should
+      # actually be a bitmask of all possible default states
       if options.has_key?(:default)
         default(name)
       end
@@ -147,26 +178,27 @@ module Maintain
         on :exit, name.to_sym, options.delete(:exit)
       end
 
-      # Now we're going to add proxies to test for state. These methods only get added if a
-      # method of their name doesn't already exist.
+      # Now we're going tests for state. Shortcuts to these methods only get
+      # added if a method of their name doesn't already exist.
       boolean_method = "#{name}?"
-      # Override any attribute_state? methods, because those we need for hooks...
+      shortcut = options[:force] || method_free?(boolean_method)
       maintainee.class_eval <<-EOC
         def #{@attribute}_#{boolean_method}
-          #{@attribute}.#{boolean_method}
+          #{@attribute} == #{value.inspect}
         end
-        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if method_free?(boolean_method) || options[:force]}
+        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if shortcut}
       EOC
 
-      # Last but not least, add bang methods to automatically convert to state. Like boolean
-      # methods above, these only get added if they're not already things that are things.
+      # Last but not least, add bang methods to automatically convert to state.
+      # Like boolean methods above, these only get added if they're not already
+      # things that are things.
       bang_method = "#{name}!"
-      # Override any attribute_state! methods
+      shortcut = options[:force] || method_free?(bang_method)
       maintainee.class_eval <<-EOC
         def #{@attribute}_#{bang_method}
-          #{@attribute}.#{bang_method}
+          self.#{@attribute} = #{value.inspect}
         end
-        #{"alias :#{bang_method} :#{@attribute}_#{bang_method}" if method_free?(bang_method) || options[:force]}
+        #{"alias :#{bang_method} :#{@attribute}_#{bang_method}" if shortcut}
       EOC
     end
 
@@ -175,7 +207,10 @@ module Maintain
     end
 
     def value(instance, initial = nil)
-      initial = (back_end && back_end.read(instance, @attribute)) || initial || @default
+      if back_end
+        initial = back_end.read(instance, @attribute)
+      end
+      initial ||= initial || @default
       if bitmask?
         BitmaskValue.new(self, initial || 0)
       elsif integer?
@@ -198,17 +233,14 @@ module Maintain
       # Ugly hack so we don't fetch it 100 times for no reason
       maintainee_class = maintainee
       if class_method
-        respond_to = maintainee_class.respond_to?(method_name)
-        methods = maintainee_class.public_methods + maintainee_class.private_methods + maintainee_class.protected_methods
+        return false if maintainee_class.respond_to?(method_name)
+        methods = maintainee_class.public_methods
+        methods += maintainee_class.private_methods
+        methods += maintainee_class.protected_methods
       else
-        respond_to = false
         methods = maintainee_class.instance_methods
-        # methods = %w(instance_methods public_instance_methods private_instance_methods protected_instance_methods).inject([]) do |methods, method|
-        #   methods + maintainee_class.send(method)
-        # end.uniq
       end
-      # Ruby 1.8 returns arrays of strings; ruby 1.9 returns arrays of symbols. "Awesome."
-      !respond_to && !methods.include?(method_name) && !methods.include?(method_name.to_sym)
+      !methods.include?(method_name.to_sym)
     end
 
     def method_missing(method, *args)
@@ -220,12 +252,8 @@ module Maintain
     end
 
     private
-    def call_method_or_proc_on_instance(method, instance)
-      if method.is_a?(Proc)
-        instance.instance_eval(&method)
-      else
-        instance.send(method)
-      end
+    def call_method_or_proc(method, instance)
+      self.class.call_method_or_proc(method, instance)
     end
   end
 end

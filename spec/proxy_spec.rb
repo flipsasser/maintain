@@ -56,7 +56,7 @@ describe Maintain do
     end
 
     it "should return ':new' for a state with a default value of :new" do
-      MaintainTest.maintain :state, :default => :new do
+      MaintainTest.maintain :state, default: :new do
         state :new
         state :overdue
         state :closed
@@ -65,7 +65,7 @@ describe Maintain do
     end
 
     it "should return '2' for a state with a default value of :new, 2 and an :integer column" do
-      MaintainTest.maintain :state, :default => :new do
+      MaintainTest.maintain :state, default: :new do
         state :new, 2
         state :overdue, 5
         state :closed, 22
@@ -85,7 +85,7 @@ describe Maintain do
     end
 
     it "should return false for states with a default" do
-      MaintainTest.maintain :state, :default => :new do
+      MaintainTest.maintain :state, default: :new do
         state :new
         state :overdue
         state :closed
@@ -105,7 +105,7 @@ describe Maintain do
     end
 
     it "should return 'new' for a state with a default value of :new" do
-      MaintainTest.maintain :state, :default => :new do
+      MaintainTest.maintain :state, default: :new do
         state :new
         state :overdue
         state :closed
@@ -114,7 +114,7 @@ describe Maintain do
     end
 
     it "should return '2' for a state with a default value of :new, 2 and an :integer column" do
-      MaintainTest.maintain :state, :default => :new do
+      MaintainTest.maintain :state, default: :new do
         state :new, 2
         state :overdue, 5
         state :closed, 22

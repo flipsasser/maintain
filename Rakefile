@@ -13,6 +13,9 @@ begin
     gemspec.email = "flip@x451.com"
     gemspec.homepage = "http://github.com/flipsasser/maintain"
     gemspec.authors = ["Flip Sasser"]
+    gemspec.files = Dir["{lib}/**/*", "CHANGES.md", "LICENSE", "README.markdown"]
+    gemspec.test_files = Dir["{spec}/**/*"]
+    gemspec.required_ruby_version = "1.9.3"
   end
 rescue LoadError
 end
