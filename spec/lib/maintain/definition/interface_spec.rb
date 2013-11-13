@@ -1,11 +1,9 @@
-# Configuration point number one: setting and configuring states
-
 require 'spec_helper'
 require 'maintain'
 
-describe Maintain do
+describe Maintain::Definition::Interface do
   before :each do
-    class ::MaintainTest
+    class ::DefinitionInterfaceTest
       attr_accessor :existant_attribute
       extend Maintain
     end
@@ -14,29 +12,29 @@ describe Maintain do
   describe "defining states" do
     it "should be possible" do
       lambda {
-        MaintainTest.maintain :existant_attribute do
+        DefinitionInterfaceTest.maintain :existant_attribute do
           state :new
         end
       }.should_not raise_error
-      MaintainTest.new.existant_attribute.should be_nil
+      DefinitionInterfaceTest.new.existant_attribute.should be_nil
     end
 
     it "should support default values" do
-      MaintainTest.maintain :existant_attribute do
+      DefinitionInterfaceTest.maintain :existant_attribute do
         state :new, default: true
       end
-      MaintainTest.new.existant_attribute.should == :new
+      DefinitionInterfaceTest.new.existant_attribute.should == :new
     end
 
     it "should support integer values" do
-      MaintainTest.maintain :existant_attribute do
+      DefinitionInterfaceTest.maintain :existant_attribute do
         state :new, 1, default: true
       end
-      MaintainTest.new.existant_attribute.should == 1
+      DefinitionInterfaceTest.new.existant_attribute.should == 1
     end
 
     it "should provide accessor methods on the Maintain::Maintainer class for state values" do
-      maintainer = MaintainTest.maintain :permissions, bitmask: true do
+      maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
         state :edit, 1
         state :delete, 2
         state :update, 3
@@ -45,7 +43,7 @@ describe Maintain do
     end
 
     it "should not trap all methods when providing accessor methods for state values" do
-      maintainer = MaintainTest.maintain :permissions, bitmask: true do
+      maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
         state :edit, 1
         state :delete, 2
         state :update, 3
@@ -56,17 +54,17 @@ describe Maintain do
     end
 
     it "should pass valid methods to the actual value object" do
-      MaintainTest.maintain :existant_attribute do
+      DefinitionInterfaceTest.maintain :existant_attribute do
         state :new, default: true
       end
       # This changed in Ruby 1.9.2 on account of the String class not knowing WTF "to_i" is
-      MaintainTest.new.existant_attribute.size.should == 3
+      DefinitionInterfaceTest.new.existant_attribute.size.should == 3
     end
 
 
     describe "as bitmask" do
       it "should calculate a base-2 compatible integer" do
-        maintainer = MaintainTest.maintain :permissions, bitmask: true do
+        maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
           state :edit, 1
           state :delete, 2
           state :update, 3
@@ -75,7 +73,7 @@ describe Maintain do
       end
 
       it "should auto-increment bitmask column values (but dangerously!)" do
-        maintainer = MaintainTest.maintain :permissions, bitmask: true do
+        maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
           state :edit
           state :delete
           state :update
