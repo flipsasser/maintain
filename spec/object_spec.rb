@@ -1,9 +1,11 @@
 require 'spec_helper'
 
 describe 'Maintain' do
-  it "should not monkey patch Object" do
-    lambda {
+
+  it "does not monkey patch Object" do
+    expect(lambda {
       require 'maintain'
-    }.should_not change(Object, :methods)
+    }).not_to change(Object, :methods)
   end
+
 end

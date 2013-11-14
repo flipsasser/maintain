@@ -1,7 +1,10 @@
 require 'maintain/definition/interface'
+require 'maintain/utils'
 
 module Maintain
   class Definition
+
+    include Maintain::Utils
 
     attr_accessor :counter
     attr_reader :attribute, :klass
@@ -74,15 +77,19 @@ module Maintain
       !integer? && !bitmask?
     end
 
-    def value_for(value)
+    def value_for(value, instance)
+      puts "value: #{value.inspect}"
       value ||= default
+      return unless value
       if bitmask?
-        value = Array(value).inject(0) { |bitmask, name_or_value| bitmask | detect_value(name_or_value) }
-        Maintain::Value::Bitmask.new(value, self)
+        value = Array(value).inject(0) do |bitmask, name_or_value|
+          bitmask | detect_value(name_or_value)
+        end
+        Maintain::Value::Bitmask.new(value, self, instance)
       elsif integer?
-        Maintain::Value::Integer.new(value, self)
+        Maintain::Value::Integer.new(value, self, instance)
       else
-        Maintain::Value::String.new(value, self)
+        Maintain::Value::String.new(value, self, instance)
       end
     end
 
@@ -114,7 +121,7 @@ module Maintain
           end
         end
       CLASS_METHODS
-      if Maintain::Utils.method_free?(klass, attribute, true)
+      if method_free?(klass, attribute, true)
         klass.class_eval <<-CLASS_METHOD_ALIAS, __FILE__, __LINE__.succ
           class << self
             alias :#{attribute} :maintain_#{attribute}
@@ -126,9 +133,9 @@ module Maintain
     # Define the getter. Returns a Maintain::Value delegate for the actual
     # value of the maintained attribute.
     def define_getter!
-      if Maintain::Utils.method_taken?(klass, attribute)
+      if method_taken?(klass, attribute)
         getter = "_maintain_#{attribute}"
-        if Maintain::Utils.method_free?(klass, getter)
+        if method_free?(klass, getter)
           klass.class_eval <<-ALIAS
             alias :#{getter} :#{attribute}
           ALIAS
@@ -140,7 +147,7 @@ module Maintain
       klass.class_eval <<-GETTER, __FILE__, __LINE__.succ
         def #{attribute}
           definition = self.class.maintainers[:#{attribute}]
-          definition.value_for(#{getter})
+          definition.value_for(#{getter}, self)
         end
       GETTER
     end
@@ -161,11 +168,15 @@ module Maintain
     def define_setter!
       setter_name = "#{attribute}=".to_sym
 
-      if Maintain::Utils.method_taken?(klass, setter_name)
+      if method_taken?(klass, setter_name)
         setter = "self._maintain_#{setter_name}(value)"
-        klass.class_eval <<-ALIAS
-          alias :_maintain_#{setter_name} :#{setter_name}
-        ALIAS
+
+        # Don't double-alias
+        if method_free?(klass, "_maintain_#{setter_name}")
+          klass.class_eval <<-ALIAS
+            alias :_maintain_#{setter_name} :#{setter_name}
+          ALIAS
+        end
       else
         setter = "@#{attribute} = value"
       end
@@ -173,13 +184,21 @@ module Maintain
       klass.class_eval <<-SETTER, __FILE__, __LINE__.succ
       def #{setter_name}(value)
         definition = self.class.maintainers[:#{attribute}]
-        changed = #{attribute} != value
+        #changed = #{attribute} != value
 
         #definition.hook(:exit, #{attribute}.name, self) if changed
         #{setter}
         #definition.hook(:enter, #{attribute}.name, self) if changed
       end
       SETTER
+    end
+
+    def method_missing(method, *args, &block)
+      if state = states[method]
+        state.value
+      else
+        super
+      end
     end
 
   end

@@ -1,5 +1,9 @@
+require 'maintain/utils'
+
 module Maintain
   class State
+
+    include Maintain::Utils
 
     attr_reader :name, :options, :value
     attr_accessor :comparator
@@ -33,7 +37,7 @@ module Maintain
       end
       FULL_METHOD
 
-      if options[:force] || Maintain::Utils.method_free?(definition.klass, method)
+      if options[:force] || method_free?(definition.klass, method)
         definition.klass.class_eval <<-ALIAS_METHOD
           alias :#{method} :#{full_method}
         ALIAS_METHOD

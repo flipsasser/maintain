@@ -22,9 +22,6 @@ module Maintain
       if back_end = options.delete(:back_end)
         @back_end = Maintain::Backend.build(back_end)
       end
-      options.each do |key, value|
-        self.send(key, value)
-      end
     end
 
     def on(*args, &block)
@@ -46,66 +43,6 @@ module Maintain
           hooks[state.to_sym][event.to_sym].push(method_hash)
         end
       end
-    end
-
-    def state(name, value = nil, options = {})
-      if value.is_a?(Hash)
-        options = value
-        value = nil
-      end
-      @increment ||= 0
-      if bitmask?
-        unless value.is_a?(Integer)
-          value = @increment
-        end
-        value = 2 ** value.to_i
-      elsif value.is_a?(Integer)
-        integer(true)
-      end
-      value ||= name
-      states[name] = {compare_value: !bitmask? && value.is_a?(Integer) ? value : @increment, value: value}
-      @increment += 1
-      if back_end
-        back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value, force: options[:force]
-      end
-
-      # We need the states hash to contain the compare_value for this guy
-      # before we can set defaults on the bitmask, since the default should
-      # actually be a bitmask of all possible default states
-      if options.has_key?(:default)
-        default(name)
-      end
-
-      if options.has_key?(:enter)
-        on :enter, name.to_sym, options.delete(:enter)
-      end
-
-      if options.has_key?(:exit)
-        on :exit, name.to_sym, options.delete(:exit)
-      end
-
-      # Now we're going tests for state. Shortcuts to these methods only get
-      # added if a method of their name doesn't already exist.
-      boolean_method = "#{name}?"
-      shortcut = options[:force] || method_free?(boolean_method)
-      maintainee.class_eval <<-EOC
-        def #{@attribute}_#{boolean_method}
-          #{@attribute} == #{value.inspect}
-        end
-        #{"alias :#{boolean_method} :#{@attribute}_#{boolean_method}" if shortcut}
-      EOC
-
-      # Last but not least, add bang methods to automatically convert to state.
-      # Like boolean methods above, these only get added if they're not already
-      # things that are things.
-      bang_method = "#{name}!"
-      shortcut = options[:force] || method_free?(bang_method)
-      maintainee.class_eval <<-EOC
-        def #{@attribute}_#{bang_method}
-          self.#{@attribute} = #{value.inspect}
-        end
-        #{"alias :#{bang_method} :#{@attribute}_#{bang_method}" if shortcut}
-      EOC
     end
 
   end

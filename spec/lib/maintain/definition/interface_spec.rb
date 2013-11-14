@@ -1,87 +1,77 @@
 require 'spec_helper'
 require 'maintain'
 
+class DefinitionInterfaceTest
+  attr_accessor :existant_attribute
+  extend Maintain
+
+  maintain :permissions, bitmask: true do
+    state :edit, 1
+    state :delete, 2
+    state :update, 3
+  end
+end
+
 describe Maintain::Definition::Interface do
-  before :each do
-    class ::DefinitionInterfaceTest
-      attr_accessor :existant_attribute
-      extend Maintain
+
+  let(:definition) { DefinitionInterfaceTest.maintainers[:permissions] }
+  let(:definition_test) { DefinitionInterfaceTest.new }
+
+  it "defines a maintainer in a block" do
+    expect(lambda {
+      DefinitionInterfaceTest.maintain :existant_attribute do
+        state :new
+      end
+    }).not_to raise_error
+    expect(definition_test.existant_attribute).to be_nil
+  end
+
+  it "supports default values" do
+    DefinitionInterfaceTest.maintain :existant_attribute do
+      state :new, default: true
+    end
+    expect(definition_test.existant_attribute).to eq(:new)
+  end
+
+  it "supports integer values" do
+    DefinitionInterfaceTest.maintain :existant_attribute do
+      state :new, 1, default: true
+    end
+    expect(definition_test.existant_attribute).to eq(1)
+  end
+
+  it "adds accessor methods on the for state values" do
+    expect(definition.update).to eq(8)
+  end
+
+  it "does not trap EVERY method" do
+    expect(lambda {
+      definition.i_probably_dont_exist
+    }).to raise_error(NoMethodError)
+  end
+
+  it "passes valid methods to the actual value object" do
+    DefinitionInterfaceTest.maintain :existant_attribute do
+      state :new, default: true
+    end
+    expect(definition_test.existant_attribute.length).to eq(3)
+  end
+
+  describe "as a bitmask" do
+    it "calculates a base-2 compatible integer" do
+      expect(definition.update).to eq(8)
+    end
+
+    it "auto-increments bitmask column values (but dangerously!)" do
+      DefinitionInterfaceTest.maintain :permissions, bitmask: true do
+        state :edit
+        state :delete
+        state :update
+      end
+      expect(definition.edit).to eq(1)
+      expect(definition.delete).to eq(2)
+      expect(definition.update).to eq(4)
     end
   end
 
-  describe "defining states" do
-    it "should be possible" do
-      lambda {
-        DefinitionInterfaceTest.maintain :existant_attribute do
-          state :new
-        end
-      }.should_not raise_error
-      DefinitionInterfaceTest.new.existant_attribute.should be_nil
-    end
-
-    it "should support default values" do
-      DefinitionInterfaceTest.maintain :existant_attribute do
-        state :new, default: true
-      end
-      DefinitionInterfaceTest.new.existant_attribute.should == :new
-    end
-
-    it "should support integer values" do
-      DefinitionInterfaceTest.maintain :existant_attribute do
-        state :new, 1, default: true
-      end
-      DefinitionInterfaceTest.new.existant_attribute.should == 1
-    end
-
-    it "should provide accessor methods on the Maintain::Maintainer class for state values" do
-      maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
-        state :edit, 1
-        state :delete, 2
-        state :update, 3
-      end
-      maintainer.update.should == 8
-    end
-
-    it "should not trap all methods when providing accessor methods for state values" do
-      maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
-        state :edit, 1
-        state :delete, 2
-        state :update, 3
-      end
-      lambda {
-        maintainer.i_probably_dont_exist
-      }.should raise_error(NoMethodError)
-    end
-
-    it "should pass valid methods to the actual value object" do
-      DefinitionInterfaceTest.maintain :existant_attribute do
-        state :new, default: true
-      end
-      # This changed in Ruby 1.9.2 on account of the String class not knowing WTF "to_i" is
-      DefinitionInterfaceTest.new.existant_attribute.size.should == 3
-    end
-
-
-    describe "as bitmask" do
-      it "should calculate a base-2 compatible integer" do
-        maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
-          state :edit, 1
-          state :delete, 2
-          state :update, 3
-        end
-        maintainer.update.should == 8
-      end
-
-      it "should auto-increment bitmask column values (but dangerously!)" do
-        maintainer = DefinitionInterfaceTest.maintain :permissions, bitmask: true do
-          state :edit
-          state :delete
-          state :update
-        end
-        maintainer.edit.should == 1
-        maintainer.delete.should == 2
-        maintainer.update.should == 4
-      end
-    end
-  end
 end

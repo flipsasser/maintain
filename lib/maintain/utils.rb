@@ -1,6 +1,5 @@
 module Maintain
   module Utils
-    extend self
 
     def call_method_or_proc(method, instance)
       if method.is_a?(Proc)

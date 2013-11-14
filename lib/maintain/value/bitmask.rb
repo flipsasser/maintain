@@ -6,6 +6,14 @@ module Maintain
       include Enumerable
       include Maintain::Value
 
+      def ==(comparison_value)
+        super(detect_value(comparison_value)) || to_a == comparison_value
+      end
+
+      def ===(comparison_value)
+        super(detect_value(comparison_value)) || to_a === comparison_value
+      end
+
       def to_a
         definition.states.select do |name, state|
           self & state.value > 0
@@ -36,10 +44,10 @@ module Maintain
           else
             self.class.class_eval <<-EOC
             def #{method}
-              @value = (@value || 0) | #{compare.inspect}
+              __setobj__(self | #{state.value})
             end
             EOC
-            @value = (@value || 0) | compare
+            __setobj__(self | state.value)
           end
         else
           super

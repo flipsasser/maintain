@@ -6,7 +6,7 @@ module Maintain
       private
 
       def cast(value)
-        value ? value.to_s : value
+        value.to_s
       end
 
     end

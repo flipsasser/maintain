@@ -41,13 +41,13 @@ module Maintain
       protected
 
       def add_bitmask_state(name, value, options)
-        value = @counter unless value.is_a?(Integer)
+        value = @definition.counter unless value.is_a?(Integer)
         value = 2 ** value.to_i
         add_state(name, value, options)
       end
 
       def add_integer_state(name, value, options)
-        add_state(name, value || @counter, options)
+        add_state(name, value || @definition.counter, options)
       end
 
       def add_state(name, value, options)
@@ -55,13 +55,13 @@ module Maintain
         if !@definition.bitmask? && value.is_a?(Integer)
           state.comparator = value
         else
-          state.comparator = @counter
+          state.comparator = @definition.counter
         end
         @definition.states[name] = state
         @definition.counter += 1
-        #if back_end
-        #back_end.state maintainee, name, @attribute, value.is_a?(Symbol) ? value.to_s : value, force: options[:force]
-        #end
+        if state.options[:default]
+          @definition.default = state.name
+        end
       end
 
     end
