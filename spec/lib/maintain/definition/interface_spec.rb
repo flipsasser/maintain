@@ -33,7 +33,7 @@ describe Maintain::Definition::Interface do
     expect(definition_test.existant_attribute).to eq(:new)
   end
 
-  it "supports integer values" do
+  it "supports default integer values" do
     DefinitionInterfaceTest.maintain :existant_attribute do
       state :new, 1, default: true
     end

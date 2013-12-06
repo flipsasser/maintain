@@ -19,11 +19,11 @@ describe Maintain::Aggregate do
 
   let(:aggregate_test) { AggregateTest.new }
 
-  it "create boolean methods" do
+  it "creates boolean methods" do
     expect(aggregate_test).to respond_to(:b_words?)
   end
 
-  it "return true if one of the aggregate states are met" do
+  it "returns true if one of the aggregate states are met" do
     aggregate_test.state = :new
     expect(aggregate_test.b_words?).to be_false
     aggregate_test.state = :blue

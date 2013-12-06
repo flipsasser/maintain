@@ -5,7 +5,9 @@ module Maintain
 
     def define_boolean_methods!(definition)
       define_with_alias(definition, "#{name}?", %{
-        #{value.inspect}.include?(#{definition.attribute}.name)
+        #{value.inspect}.any? do |value|
+          #{definition.attribute} == value
+        end
       })
     end
 

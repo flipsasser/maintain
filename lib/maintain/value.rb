@@ -8,13 +8,11 @@ module Maintain
 
     attr_reader :definition, :state
 
-    def initialize(value, definition, instance)
-      value = cast(value)
+    def initialize(states, definition, instance)
+      value = cast(states)
       super(value)
       @definition = definition
-      @state = @definition.states.values.find do |state|
-        state.value == value
-      end
+      @states = Array(states)
       @instance = instance
       @value = value
     end
@@ -36,7 +34,10 @@ module Maintain
     end
 
     def ==(comparison_value)
-      super detect_value(comparison_value)
+      @states.any? do |state|
+        state.name == comparison_value ||
+          state.value == comparison_value
+      end
     end
 
     def ===(comparison_value)
@@ -49,6 +50,10 @@ module Maintain
     end
 
     private
+
+    def cast(state)
+      state.value
+    end
 
     def detect_value(value)
       @definition.detect_value(value)

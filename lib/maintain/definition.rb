@@ -61,6 +61,14 @@ module Maintain
       end
     end
 
+    def find_state(value)
+      string_value = value.to_s
+      states.values.find do |state|
+        state.name.to_s == string_value ||
+          state.value == value
+      end
+    end
+
     def integer?
       !!@integer
     end
@@ -78,29 +86,45 @@ module Maintain
     end
 
     def value_for(value, instance)
-      puts "value: #{value.inspect}"
       value ||= default
       return unless value
       if bitmask?
-        value = Array(value).inject(0) do |bitmask, name_or_value|
-          bitmask | detect_value(name_or_value)
-        end
-        Maintain::Value::Bitmask.new(value, self, instance)
+        bitmask_value_for(value, instance)
       elsif integer?
-        Maintain::Value::Integer.new(value, self, instance)
+        integer_value_for(value, instance)
       else
-        Maintain::Value::String.new(value, self, instance)
+        regular_value_for(value, instance)
       end
     end
 
-    protected
+    private
 
-    def find_state(name_or_value)
-      name_or_value = name_or_value.to_s
-      states.values.find {|state| state.name.to_s == name_or_value }
+    def bitmask_value_for(value, instance)
+      if value.is_a?(Fixnum)
+        states = self.states.select do |name, state|
+          value | state.comparator > 0
+        end
+      else
+        values = Array(value).compact
+        states = values.map do |name_or_value|
+          find_state(name_or_value)
+        end
+      end
+      puts "#{value.inspect} #{states.inspect}"
+      return unless states.any?
+      Maintain::Value::Bitmask.new(states, self, instance)
     end
 
-    private
+    def regular_value_for(value, instance)
+      state = find_state(value)
+      puts "#{value.inspect} #{state.inspect}"
+      return unless state
+      if integer?
+        Maintain::Value::Integer.new(state, self, instance)
+      else
+        Maintain::Value::String.new(state, self, instance)
+      end
+    end
 
     # Define accessors for each of the states that have been configured through
     # the interface

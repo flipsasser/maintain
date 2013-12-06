@@ -14,22 +14,22 @@ module Maintain
         super(detect_value(comparison_value)) || to_a === comparison_value
       end
 
-      def to_a
-        definition.states.select do |name, state|
-          self & state.value > 0
-        end.map(&:first)
-      end
-
-      alias :to_array :to_a
-
       def each(&block)
         to_a.each {|state| yield state }
       end
 
+      def to_a
+        @states.map(&:name)
+      end
+
+      alias :to_array :to_a
+
       private
 
-      def cast(values)
-        Array(values).inject(0) { |bitmask, value| bitmask | value.to_i }
+      def cast(states)
+        Array(values).inject(0) do |bitmask, state|
+          bitmask | state.comparator
+        end
       end
 
       def method_missing(method, *args)
