@@ -7,7 +7,7 @@ GEM
     diff-lcs (1.2.4)
     faraday (0.8.8)
       multipart-post (~> 1.2.0)
-    ffi (1.9.0)
+    ffi (1.10.0)
     formatador (0.2.4)
     git (1.2.6)
     github_api (0.10.1)
